@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Data Cleaning &amp; Preprocessing</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Kenapa Cleaning Memakan Waktu</a></li>
+      <li><a href="#s3">Mendeteksi Missing Values</a></li>
+      <li><a href="#s4">Menangani Missing Values</a></li>
+      <li><a href="#s5">Duplikat Data</a></li>
+      <li><a href="#s6">Deteksi Outlier dengan IQR</a></li>
+      <li><a href="#s7">Deteksi Outlier dengan Z-score</a></li>
+      <li><a href="#s8">Konversi Tipe Data</a></li>
+      <li><a href="#s9">Encoding: One-Hot</a></li>
+      <li><a href="#s10">Encoding: Label Encoding</a></li>
+      <li><a href="#s11">Scaling Numerik</a></li>
+      <li><a href="#s12">Pipeline Cleaning Lengkap</a></li>
+      <li><a href="#s13">Latihan: Dataset Kotor</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 5 &middot; Fondasi</span>
+      <h1>Data Cleaning &amp; Preprocessing</h1>
+      <p class="sub">Data mentah hasil pengumpulan di Pertemuan 4 hampir selalu kotor: ada nilai hilang, duplikat, outlier, format tanggal campur, dan kategori yang belum siap diolah model. Pertemuan ini membekali teknik membersihkan &amp; mempersiapkan data sebelum masuk tahap eksplorasi dan modeling.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Kenapa Cleaning Memakan Waktu</a></li>
+        <li><a href="#s3">03. Mendeteksi Missing Values</a></li>
+        <li><a href="#s4">04. Menangani Missing Values</a></li>
+        <li><a href="#s5">05. Duplikat Data</a></li>
+        <li><a href="#s6">06. Deteksi Outlier dengan IQR</a></li>
+        <li><a href="#s7">07. Deteksi Outlier dengan Z-score</a></li>
+        <li><a href="#s8">08. Konversi Tipe Data</a></li>
+        <li><a href="#s9">09. Encoding: One-Hot</a></li>
+        <li><a href="#s10">10. Encoding: Label Encoding</a></li>
+        <li><a href="#s11">11. Scaling Numerik</a></li>
+        <li><a href="#s12">12. Pipeline Cleaning Lengkap</a></li>
+        <li><a href="#s13">13. Latihan: Dataset Kotor</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat mendeteksi dan menangani missing value, duplikat, serta outlier; mengonversi tipe data yang salah; dan menyiapkan kolom kategorikal &amp; numerik agar siap dipakai model machine learning di Pertemuan 9 ke depan.</p>
+    <ul>
+      <li>Sudah menyelesaikan Pertemuan 2-4 (NumPy, pandas, pengumpulan data).</li>
+      <li>Install dependency tambahan: <code>pip install scikit-learn matplotlib seaborn</code>.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Kenapa Data Cleaning Memakan Waktu Paling Besar</h2>
+    <p>Survei industri berulang kali menunjukkan data scientist menghabiskan <strong>60-80% waktu proyek</strong> untuk membersihkan &amp; mempersiapkan data, bukan membangun model. Model machine learning secanggih apa pun akan menghasilkan kesimpulan yang salah jika data yang dimasukkan kotor — prinsip yang dikenal sebagai <strong>"garbage in, garbage out"</strong>.</p>
+    <div class="note"><span class="lbl">Contoh nyata</span><p>Dataset penjualan UMKM sering punya kolom tanggal dengan format campur (<code>05/01/2026</code> dan <code>2026-01-05</code> dalam file yang sama), harga bertipe teks karena ada simbol <code>"Rp"</code>, serta entri ganda akibat input manual kasir dua kali untuk transaksi yang sama.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Mendeteksi Missing Values</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    "produk": ["Kopi Susu", "Roti Bakar", None, "Es Teh", "Kopi Susu"],
+    "jumlah": [12, np.nan, 15, 20, 12],
+    "harga": [15000, 12000, 8000, np.nan, 15000],
+})
+
+print(df.isna())            # tabel True/False tiap sel
+print(df.isna().sum())      # jumlah missing value per kolom
+print(df.isna().sum().sum())   # total seluruh missing value di DataFrame
+print(df.isnull().mean() * 100)   # persentase missing per kolom</code></pre></div>
+    <div class="note"><span class="lbl"><code>isna()</code> vs <code>isnull()</code></span><p>Keduanya identik di pandas — <code>isnull()</code> adalah alias dari <code>isna()</code>, disediakan untuk kenyamanan penulisan karena pengguna R/SQL lebih familiar dengan istilah "null".</p></div>
+
+    <h2 id="s4"><span class="badge">04</span>Menangani Missing Values</h2>
+    <p>Dua strategi utama: <strong>menghapus</strong> baris/kolom bermasalah (<code>dropna</code>), atau <strong>mengisi</strong> nilai yang hilang dengan nilai pengganti (<code>fillna</code>).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code># dropna: hapus baris yang punya missing value di kolom manapun
+df_bersih = df.dropna()
+
+# hapus hanya jika SEMUA kolom di baris itu kosong
+df_bersih2 = df.dropna(how="all")
+
+# hapus kolom jika lebih dari 50% isinya missing
+df_bersih3 = df.dropna(axis=1, thresh=len(df) * 0.5)
+
+# fillna dengan nilai statistik
+df["jumlah"] = df["jumlah"].fillna(df["jumlah"].median())      # median: tahan outlier
+df["harga"] = df["harga"].fillna(df["harga"].mean())            # mean: data numerik normal
+df["produk"] = df["produk"].fillna(df["produk"].mode()[0])      # modus: data kategorikal
+
+# fillna dengan nilai sebelumnya/berikutnya (cocok untuk data deret waktu)
+df_ffill = df.fillna(method="ffill")   # forward fill: isi dengan nilai sebelumnya
+df_bfill = df.fillna(method="bfill")   # backward fill: isi dengan nilai sesudahnya</code></pre></div>
+    <table>
+      <tr><th>Strategi</th><th>Kapan cocok dipakai</th></tr>
+      <tr><td><code>dropna</code></td><td>Missing value sedikit (&lt;5%) dan baris lain informatif lengkap</td></tr>
+      <tr><td>Mean</td><td>Kolom numerik dengan distribusi relatif normal, tanpa outlier ekstrem</td></tr>
+      <tr><td>Median</td><td>Kolom numerik dengan outlier/distribusi miring (skewed)</td></tr>
+      <tr><td>Modus</td><td>Kolom kategorikal (teks)</td></tr>
+      <tr><td>ffill / bfill</td><td>Data deret waktu, di mana nilai terdekat masuk akal sebagai pengganti</td></tr>
+    </table>
+    <div class="warn"><span class="lbl">Jangan asal pilih mean</span><p>Mengisi missing value dengan <code>mean()</code> pada kolom yang punya outlier ekstrem (misalnya satu transaksi senilai 50 juta di antara transaksi normal puluhan ribu) akan menghasilkan nilai pengganti yang tidak representatif. Cek distribusi dulu dengan <code>df[kolom].hist()</code> sebelum memutuskan.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Mendeteksi &amp; Menangani Duplikat</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>print(df.duplicated())          # True/False tiap baris (True jika duplikat baris sebelumnya)
+print(df.duplicated().sum())    # total baris duplikat
+
+df_unik = df.drop_duplicates()                       # hapus duplikat persis (semua kolom sama)
+df_unik2 = df.drop_duplicates(subset=["produk"])       # anggap duplikat jika kolom "produk" sama
+df_unik3 = df.drop_duplicates(keep="last")             # simpan kemunculan terakhir, bukan pertama</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>df.duplicated().sum()</code> menghasilkan <code>0</code> setelah <code>drop_duplicates()</code> dijalankan, dan jumlah baris (<code>df.shape[0]</code>) berkurang sesuai jumlah duplikat yang terdeteksi sebelumnya.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Deteksi Outlier dengan IQR</h2>
+    <p><strong>IQR (Interquartile Range)</strong> adalah selisih antara kuartil 3 (Q3, persentil 75) dan kuartil 1 (Q1, persentil 25). Nilai di luar <code>Q1 - 1.5*IQR</code> sampai <code>Q3 + 1.5*IQR</code> dianggap outlier.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>Q1 = df["jumlah"].quantile(0.25)
+Q3 = df["jumlah"].quantile(0.75)
+IQR = Q3 - Q1
+
+batas_bawah = Q1 - 1.5 * IQR
+batas_atas = Q3 + 1.5 * IQR
+
+outlier_iqr = df[(df["jumlah"] < batas_bawah) | (df["jumlah"] > batas_atas)]
+df_tanpa_outlier = df[(df["jumlah"] >= batas_bawah) & (df["jumlah"] <= batas_atas)]
+
+print(f"Batas normal: {batas_bawah:.1f} - {batas_atas:.1f}")
+print(f"Jumlah outlier terdeteksi: {len(outlier_iqr)}")</code></pre></div>
+
+    <h2 id="s7"><span class="badge">07</span>Deteksi Outlier dengan Z-score &amp; Visualisasi Boxplot</h2>
+    <p><strong>Z-score</strong> mengukur berapa standar deviasi suatu nilai menyimpang dari rata-rata. Umumnya, <code>|z| &gt; 3</code> dianggap outlier.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from scipy import stats
+import numpy as np
+
+z_scores = np.abs(stats.zscore(df["jumlah"].dropna()))
+outlier_zscore = df.loc[df["jumlah"].dropna().index][z_scores > 3]
+
+print(outlier_zscore)</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">visualisasi boxplot</span></div><pre><code>import matplotlib.pyplot as plt
+import seaborn as sns
+
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.boxplot(x=df["jumlah"], ax=ax, color="#3659D9")
+ax.set_title("Boxplot Jumlah Terjual — Deteksi Outlier")
+plt.tight_layout()
+plt.savefig("boxplot_jumlah.png")
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Membaca boxplot</span><p>Kotak (box) menunjukkan rentang Q1-Q3 (IQR), garis tengah adalah median, "kumis" (whisker) menjangkau sampai 1.5&times;IQR, dan titik-titik di luar kumis adalah outlier — representasi visual langsung dari rumus IQR di bagian sebelumnya.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Konversi Tipe Data</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df_kotor = pd.DataFrame({
+    "harga_teks": ["15000", "12.000", "Rp8000", "20000"],
+    "tanggal_campur": ["2026-01-05", "06/01/2026", "2026-01-07", "08-01-2026"],
+})
+
+# bersihkan teks angka dulu sebelum konversi
+df_kotor["harga_bersih"] = (
+    df_kotor["harga_teks"].str.replace("Rp", "", regex=False)
+    .str.replace(".", "", regex=False)
+)
+df_kotor["harga_bersih"] = pd.to_numeric(df_kotor["harga_bersih"], errors="coerce")
+
+# to_datetime dengan format campur: coba parsing fleksibel, invalid jadi NaT
+df_kotor["tanggal_bersih"] = pd.to_datetime(df_kotor["tanggal_campur"], format="mixed", errors="coerce")
+
+df_kotor["harga_int"] = df_kotor["harga_bersih"].astype("Int64")   # Int64 mendukung NaN, int64 biasa tidak
+
+print(df_kotor.dtypes)</code></pre></div>
+    <div class="warn"><span class="lbl"><code>errors="coerce"</code> itu penting</span><p>Tanpa <code>errors="coerce"</code>, <code>pd.to_numeric</code>/<code>pd.to_datetime</code> akan melempar error dan menghentikan seluruh proses begitu menemukan satu nilai yang tidak bisa dikonversi. Dengan <code>coerce</code>, nilai bermasalah diubah jadi <code>NaN</code>/<code>NaT</code> agar bisa ditangani lebih lanjut dengan teknik di bagian 03-04.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Encoding Kategorikal: One-Hot Encoding</h2>
+    <p><strong>One-hot encoding</strong> mengubah satu kolom kategorikal menjadi beberapa kolom biner (0/1), satu kolom per kategori — cocok untuk kategori tanpa urutan (nominal) seperti nama produk atau kategori toko.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df_kategori = pd.DataFrame({"kategori": ["Minuman", "Makanan", "Minuman", "Snack"]})
+
+df_onehot = pd.get_dummies(df_kategori, columns=["kategori"], prefix="kat")
+print(df_onehot)
+#    kat_Makanan  kat_Minuman  kat_Snack
+# 0        False         True      False
+# 1         True        False      False
+# 2        False         True      False
+# 3        False        False       True</code></pre></div>
+    <div class="note"><span class="lbl">Jebakan multikolinearitas</span><p>Untuk model linear (regresi linear/logistik), tambahkan <code>drop_first=True</code> pada <code>pd.get_dummies</code> untuk menghindari "dummy variable trap" — satu kategori bisa diprediksi sempurna dari kategori lainnya jika semua kolom dipertahankan.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Encoding Kategorikal: Label Encoding</h2>
+    <p><strong>Label encoding</strong> mengubah tiap kategori menjadi satu angka (0, 1, 2, ...) — cocok untuk kategori yang punya urutan (ordinal) seperti "Rendah/Sedang/Tinggi", atau untuk model berbasis pohon (decision tree, random forest) yang tidak terpengaruh oleh skala angka.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+df_kategori["kategori_encoded"] = le.fit_transform(df_kategori["kategori"])
+
+print(df_kategori)
+print(dict(zip(le.classes_, le.transform(le.classes_))))
+# {'Makanan': 0, 'Minuman': 1, 'Snack': 2}</code></pre></div>
+    <div class="warn"><span class="lbl">Hati-hati memakai label encoding untuk kategori nominal</span><p>Model linear/regresi bisa salah mengartikan angka hasil label encoding sebagai memiliki urutan/jarak matematis (misal "Snack" dianggap 2x lebih besar dari "Minuman"), padahal kategori nominal tidak punya urutan. Untuk kasus nominal, one-hot encoding (bagian 09) lebih aman.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>Scaling Numerik: StandardScaler vs MinMaxScaler</h2>
+    <p>Scaling menyamakan rentang nilai antar kolom numerik, penting untuk algoritma yang sensitif terhadap skala (misalnya KNN, SVM, regresi dengan regularisasi).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.preprocessing import StandardScaler, MinMaxScaler
+import pandas as pd
+
+df_num = pd.DataFrame({"jumlah": [12, 20, 8, 50, 15], "harga": [15000, 12000, 8000, 25000, 15000]})
+
+standard = StandardScaler()
+df_standard = pd.DataFrame(standard.fit_transform(df_num), columns=df_num.columns)
+# hasil: mean=0, std=1 di setiap kolom
+
+minmax = MinMaxScaler()
+df_minmax = pd.DataFrame(minmax.fit_transform(df_num), columns=df_num.columns)
+# hasil: semua nilai berada di rentang 0-1
+
+print(df_standard.describe().loc[["mean", "std"]])
+print(df_minmax.describe().loc[["min", "max"]])</code></pre></div>
+    <table>
+      <tr><th>Scaler</th><th>Hasil</th><th>Kapan dipakai</th></tr>
+      <tr><td><code>StandardScaler</code></td><td>Mean 0, std 1 (z-score)</td><td>Data relatif normal, dipakai regresi/SVM/PCA</td></tr>
+      <tr><td><code>MinMaxScaler</code></td><td>Rentang 0-1</td><td>Perlu rentang pasti (misal input neural network), data tanpa outlier ekstrem</td></tr>
+    </table>
+    <div class="warn"><span class="lbl">Fit hanya di data training</span><p>Panggil <code>.fit()</code> atau <code>.fit_transform()</code> hanya pada data training, lalu pakai <code>.transform()</code> (tanpa <code>fit</code> ulang) untuk data testing — topik ini akan dibahas lebih detail saat split data di Pertemuan 9, untuk mencegah kebocoran informasi (data leakage).</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Pipeline Cleaning Lengkap (Studi Kasus)</h2>
+    <p>Menggabungkan semua teknik di atas menjadi satu alur kerja pembersihan data penjualan UMKM:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+df = pd.read_csv("data/raw/penjualan_kotor.csv")
+
+# 1. Konversi tipe data
+df["harga"] = (df["harga"].astype(str).str.replace("Rp", "", regex=False)
+               .str.replace(".", "", regex=False))
+df["harga"] = pd.to_numeric(df["harga"], errors="coerce")
+df["tanggal"] = pd.to_datetime(df["tanggal"], format="mixed", errors="coerce")
+
+# 2. Tangani missing values
+df["jumlah"] = df["jumlah"].fillna(df["jumlah"].median())
+df["harga"] = df["harga"].fillna(df["harga"].median())
+df = df.dropna(subset=["produk", "tanggal"])   # baris tanpa produk/tanggal valid dibuang
+
+# 3. Hapus duplikat
+df = df.drop_duplicates()
+
+# 4. Tangani outlier dengan IQR
+Q1, Q3 = df["jumlah"].quantile([0.25, 0.75])
+IQR = Q3 - Q1
+df = df[(df["jumlah"] >= Q1 - 1.5*IQR) & (df["jumlah"] <= Q3 + 1.5*IQR)]
+
+# 5. Encoding & scaling
+df = pd.get_dummies(df, columns=["kategori"], prefix="kat", drop_first=True)
+scaler = StandardScaler()
+df[["jumlah_scaled", "harga_scaled"]] = scaler.fit_transform(df[["jumlah", "harga"]])
+
+df.to_csv("data/processed/penjualan_bersih.csv", index=False)
+print(f"Data bersih: {df.shape[0]} baris, {df.shape[1]} kolom")</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda pipeline berhasil</span><p><code>df.isna().sum().sum()</code> bernilai <code>0</code>, <code>df.duplicated().sum()</code> bernilai <code>0</code>, dan tidak ada error konversi tipe — artinya dataset siap dipakai untuk tahap eksplorasi (Pertemuan 6) dan modeling (Pertemuan 9).</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Latihan: Membersihkan Dataset Kotor</h2>
+    <p>Buat berkas <code>data/raw/penjualan_kotor.csv</code> dengan isi sengaja kotor berikut (atau unduh versi serupa), lalu bersihkan dengan teknik di pertemuan ini:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">data/raw/penjualan_kotor.csv</span></div><pre><code>tanggal,produk,kategori,jumlah,harga
+2026-01-05,Kopi Susu,Minuman,12,Rp15000
+06/01/2026,Roti Bakar,Makanan,,Rp12.000
+2026-01-06,Kopi Susu,Minuman,20,Rp15000
+2026-01-07,Es Teh,Minuman,15,Rp8000
+2026-01-07,Es Teh,Minuman,15,Rp8000
+08-01-2026,Roti Bakar,Makanan,9,Rp12000
+2026-01-09,Kopi Susu,Minuman,500,Rp15000
+2026-01-10,,Snack,7,Rp5000</code></pre></div>
+    <ol>
+      <li>Deteksi dan hitung jumlah missing value per kolom, lalu tangani dengan strategi yang paling sesuai untuk tiap kolom (jelaskan alasannya).</li>
+      <li>Deteksi &amp; hapus baris duplikat persis (baris tanggal <code>2026-01-07</code> muncul dua kali).</li>
+      <li>Normalisasi format tanggal yang campur (<code>YYYY-MM-DD</code> dan <code>DD/MM/YYYY</code> serta <code>DD-MM-YYYY</code>) menjadi satu format konsisten.</li>
+      <li>Bersihkan kolom <code>harga</code> dari simbol <code>Rp</code> dan titik ribuan, lalu konversi ke tipe numerik.</li>
+      <li>Deteksi outlier pada kolom <code>jumlah</code> dengan IQR (baris dengan nilai <code>500</code> seharusnya terdeteksi), putuskan apakah akan dihapus atau dipertahankan dengan alasan bisnis.</li>
+      <li>Lakukan one-hot encoding pada kolom <code>kategori</code> dan scaling (`StandardScaler`) pada kolom numerik, lalu simpan hasil akhir ke <code>data/processed/penjualan_kotor_bersih.csv</code>.</li>
+    </ol>
+
+    <footer>Dengan dataset yang sudah bersih dan siap pakai, Pertemuan 6-7 akan masuk ke tahap Explore: eksplorasi data (EDA) dan visualisasi untuk menemukan pola, tren, serta hubungan antar variabel sebelum membangun model statistik dan machine learning. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

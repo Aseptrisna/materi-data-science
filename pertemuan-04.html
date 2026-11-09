@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pengumpulan Data: SQL, API, dan Web Scraping</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Kenapa Data Jarang Rapi</a></li>
+      <li><a href="#s3">Membaca Data dari SQLite</a></li>
+      <li><a href="#s4">Query SQL dengan pandas</a></li>
+      <li><a href="#s5">SQLAlchemy sebagai Alternatif</a></li>
+      <li><a href="#s6">Mengambil Data dari REST API</a></li>
+      <li><a href="#s7">Dari JSON ke DataFrame</a></li>
+      <li><a href="#s8">Dasar Web Scraping</a></li>
+      <li><a href="#s9">Etika Scraping &amp; robots.txt</a></li>
+      <li><a href="#s10">Menggabungkan Data: concat</a></li>
+      <li><a href="#s11">Menggabungkan Data: merge/join</a></li>
+      <li><a href="#s12">Menyimpan ke data/processed</a></li>
+      <li><a href="#s13">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 4 &middot; Fondasi</span>
+      <h1>Pengumpulan Data: SQL, API, dan Web Scraping</h1>
+      <p class="sub">Di dunia nyata, data jarang datang sebagai CSV rapi di satu file. Pertemuan ini mengajarkan tiga sumber data paling umum — database SQL, REST API publik, dan web scraping — lalu bagaimana menggabungkan ketiganya menjadi satu DataFrame siap olah.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Kenapa Data Jarang Rapi</a></li>
+        <li><a href="#s3">03. Membaca Data dari SQLite</a></li>
+        <li><a href="#s4">04. Query SQL dengan pandas</a></li>
+        <li><a href="#s5">05. SQLAlchemy sebagai Alternatif</a></li>
+        <li><a href="#s6">06. Mengambil Data dari REST API</a></li>
+        <li><a href="#s7">07. Dari JSON ke DataFrame</a></li>
+        <li><a href="#s8">08. Dasar Web Scraping</a></li>
+        <li><a href="#s9">09. Etika Scraping &amp; robots.txt</a></li>
+        <li><a href="#s10">10. Menggabungkan Data: concat</a></li>
+        <li><a href="#s11">11. Menggabungkan Data: merge/join</a></li>
+        <li><a href="#s12">12. Menyimpan ke data/processed</a></li>
+        <li><a href="#s13">13. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat mengambil data dari database SQLite, REST API, dan halaman web sederhana, lalu menggabungkan ketiganya menjadi satu DataFrame memakai <code>concat</code>/<code>merge</code>/<code>join</code>.</p>
+    <ul>
+      <li>Sudah menyelesaikan Pertemuan 3 (pandas dasar).</li>
+      <li>Install dependency tambahan: <code>pip install requests beautifulsoup4 sqlalchemy lxml</code> (<code>sqlite3</code> sudah bawaan Python, tidak perlu diinstal).</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Kenapa Data Jarang Rapi</h2>
+    <p>Dalam proyek nyata, data tersebar di banyak sistem: database transaksi toko, API pembayaran, API cuaca untuk korelasi penjualan, bahkan halaman web kompetitor untuk benchmarking harga. Kemampuan "menjemput" data dari sumber berbeda sama pentingnya dengan kemampuan menganalisisnya.</p>
+    <table>
+      <tr><th>Sumber data</th><th>Contoh nyata</th><th>Alat Python</th></tr>
+      <tr><td>Database SQL</td><td>Data transaksi POS, aplikasi internal</td><td><code>sqlite3</code>, <code>SQLAlchemy</code></td></tr>
+      <tr><td>REST API</td><td>Data cuaca, kurs mata uang, media sosial</td><td><code>requests</code></td></tr>
+      <tr><td>Web scraping</td><td>Tabel harga/produk di halaman publik</td><td><code>requests</code> + <code>BeautifulSoup</code></td></tr>
+      <tr><td>File (CSV/Excel)</td><td>Ekspor laporan manual</td><td><code>pandas</code> (Pertemuan 3)</td></tr>
+    </table>
+
+    <h2 id="s3"><span class="badge">03</span>Membaca Data dari SQLite</h2>
+    <p><strong>SQLite</strong> adalah database ringan berbasis satu file (<code>.db</code>), cocok untuk belajar SQL tanpa perlu instalasi server database terpisah.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import sqlite3
+import pandas as pd
+
+conn = sqlite3.connect("data/raw/toko.db")
+
+# membuat tabel contoh (biasanya database sudah ada, ini hanya demo)
+conn.execute("""
+    CREATE TABLE IF NOT EXISTS transaksi (
+        id INTEGER PRIMARY KEY,
+        produk TEXT, jumlah INTEGER, harga INTEGER, tanggal TEXT
+    )
+""")
+conn.execute("INSERT INTO transaksi (produk, jumlah, harga, tanggal) VALUES ('Kopi Susu', 12, 15000, '2026-01-05')")
+conn.commit()
+
+df = pd.read_sql_query("SELECT * FROM transaksi", conn)
+print(df)
+conn.close()</code></pre></div>
+
+    <h2 id="s4"><span class="badge">04</span>Query SQL dengan pandas</h2>
+    <p><code>pd.read_sql_query</code> menerima query SQL apa pun, bukan hanya <code>SELECT *</code> — memungkinkan filtering &amp; agregasi dilakukan langsung di sisi database sebelum data masuk ke Python.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>conn = sqlite3.connect("data/raw/toko.db")
+
+query = """
+    SELECT produk, SUM(jumlah) AS total_jumlah, AVG(harga) AS rata_harga
+    FROM transaksi
+    WHERE tanggal >= '2026-01-01'
+    GROUP BY produk
+    ORDER BY total_jumlah DESC
+"""
+ringkasan = pd.read_sql_query(query, conn)
+print(ringkasan)
+conn.close()</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa agregasi di SQL?</span><p>Untuk database besar, melakukan <code>GROUP BY</code>/<code>WHERE</code> di level SQL jauh lebih efisien daripada menarik seluruh tabel mentah ke pandas lalu memfilternya — database dioptimalkan untuk operasi ini.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>SQLAlchemy sebagai Alternatif</h2>
+    <p><strong>SQLAlchemy</strong> menyediakan antarmuka koneksi database yang seragam untuk banyak jenis database (SQLite, PostgreSQL, MySQL, dll), sehingga kode tidak perlu banyak berubah saat database produksi berbeda dari database belajar.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sqlalchemy import create_engine
+import pandas as pd
+
+engine = create_engine("sqlite:///data/raw/toko.db")
+# untuk PostgreSQL: "postgresql://user:password@host:5432/nama_db"
+
+df = pd.read_sql_query("SELECT * FROM transaksi", engine)
+df.to_sql("transaksi_backup", engine, if_exists="replace", index=False)</code></pre></div>
+
+    <h2 id="s6"><span class="badge">06</span>Mengambil Data dari REST API</h2>
+    <p><strong>REST API</strong> mengembalikan data (biasanya format JSON) lewat permintaan HTTP. Library <code>requests</code> adalah cara standar Python untuk mengakses API.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import requests
+
+url = "https://api.exchangerate-api.com/v4/latest/USD"
+response = requests.get(url, timeout=10)
+
+print(response.status_code)   # 200 artinya berhasil
+
+data = response.json()        # ubah respons JSON jadi dict Python
+print(data["rates"]["IDR"])   # kurs USD ke IDR</code></pre></div>
+    <div class="warn"><span class="lbl">Selalu cek <code>status_code</code></span><p>Kode <code>200</code> artinya sukses, <code>404</code> artinya endpoint tidak ditemukan, <code>401</code>/<code>403</code> artinya butuh otentikasi/tidak diizinkan, dan <code>429</code> artinya terlalu banyak permintaan (rate limit). Jangan langsung panggil <code>.json()</code> tanpa mengecek status lebih dulu.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Dari JSON ke DataFrame</h2>
+    <p>Respons API sering berbentuk JSON bersarang (nested). <code>pd.json_normalize</code> meratakan struktur bersarang itu menjadi tabel.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import requests
+import pandas as pd
+
+data_json = {
+    "hasil": [
+        {"produk": "Kopi Susu", "detail": {"kategori": "Minuman", "stok": 40}},
+        {"produk": "Roti Bakar", "detail": {"kategori": "Makanan", "stok": 15}},
+    ]
+}
+
+df = pd.json_normalize(data_json["hasil"])
+print(df)
+#       produk      detail.kategori  detail.stok
+# 0  Kopi Susu             Minuman           40
+# 1 Roti Bakar             Makanan           15</code></pre></div>
+    <p>Notasi <code>detail.kategori</code> terbentuk otomatis dari key bersarang (<code>detail</code> &rarr; <code>kategori</code>) sehingga tiap nilai mendapat kolomnya sendiri.</p>
+
+    <h2 id="s8"><span class="badge">08</span>Dasar Web Scraping</h2>
+    <p><strong>Web scraping</strong> mengambil data langsung dari HTML halaman web ketika tidak tersedia API resmi. <code>BeautifulSoup</code> mem-parsing HTML menjadi struktur yang mudah di-query.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+url = "https://contoh-toko-publik.test/daftar-harga"
+response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+soup = BeautifulSoup(response.text, "html.parser")
+
+baris_produk = []
+for row in soup.select("table.daftar-harga tr")[1:]:   # [1:] melewati baris header
+    kolom = row.find_all("td")
+    baris_produk.append({
+        "produk": kolom[0].get_text(strip=True),
+        "harga": kolom[1].get_text(strip=True),
+    })
+
+df_scraping = pd.DataFrame(baris_produk)
+print(df_scraping.head())</code></pre></div>
+    <div class="note"><span class="lbl">Cara lebih singkat untuk tabel HTML</span><p>Jika data berbentuk tag <code>&lt;table&gt;</code> standar, <code>pd.read_html(url)</code> bisa langsung mengembalikan list DataFrame tanpa perlu <code>BeautifulSoup</code> manual — coba ini dulu sebelum menulis parser sendiri.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Etika Scraping &amp; robots.txt</h2>
+    <p>Tidak semua halaman boleh di-scrape. Sebelum mengambil data dari situs mana pun, periksa dan patuhi aturan berikut:</p>
+    <ul>
+      <li>Cek file <code>https://nama-situs.com/robots.txt</code> — berisi aturan path mana yang boleh/tidak boleh diakses oleh bot.</li>
+      <li>Baca Syarat &amp; Ketentuan (Terms of Service) situs — sebagian situs melarang scraping secara eksplisit.</li>
+      <li>Jangan membebani server: beri jeda antar-request (<code>time.sleep()</code>), jangan scraping ribuan halaman dalam hitungan detik.</li>
+      <li>Jangan scraping data pribadi/sensitif atau konten berhak cipta untuk disebarluaskan ulang tanpa izin.</li>
+      <li>Utamakan API resmi jika tersedia — scraping adalah solusi terakhir, bukan solusi pertama.</li>
+    </ul>
+    <div class="warn"><span class="lbl">Scraping untuk tugas kuliah</span><p>Gunakan scraping hanya pada situs yang mengizinkan (cek <code>robots.txt</code>), atau situs demo/sandbox yang memang disediakan untuk latihan. Jangan jalankan scraping ke situs produksi tanpa izin pemiliknya.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Menggabungkan Data: concat</h2>
+    <p><code>pd.concat</code> menumpuk beberapa DataFrame menjadi satu, baik secara vertikal (menambah baris) maupun horizontal (menambah kolom).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df_sql = pd.DataFrame({"produk": ["Kopi Susu"], "jumlah": [12]})
+df_api = pd.DataFrame({"produk": ["Es Teh"], "jumlah": [15]})
+
+gabungan_vertikal = pd.concat([df_sql, df_api], ignore_index=True)
+# ignore_index=True membuat index baru 0,1,2,... alih-alih mengulang index asal</code></pre></div>
+
+    <h2 id="s11"><span class="badge">11</span>Menggabungkan Data: merge/join</h2>
+    <p><code>pd.merge</code> menggabungkan dua DataFrame berdasarkan kolom kunci yang sama (mirip <code>JOIN</code> di SQL). Empat jenis merge yang paling sering dipakai:</p>
+    <table>
+      <tr><th>Jenis</th><th>Hasil</th><th>Kapan dipakai</th></tr>
+      <tr><td><code>inner</code></td><td>Hanya baris yang kuncinya cocok di kedua tabel</td><td>Hanya butuh data yang lengkap di kedua sisi</td></tr>
+      <tr><td><code>left</code></td><td>Semua baris tabel kiri + data tabel kanan jika cocok</td><td>Tabel kiri adalah data utama (misal transaksi)</td></tr>
+      <tr><td><code>right</code></td><td>Semua baris tabel kanan + data tabel kiri jika cocok</td><td>Kebalikan dari <code>left</code></td></tr>
+      <tr><td><code>outer</code></td><td>Semua baris dari kedua tabel, isi kosong jika tak cocok</td><td>Ingin melihat semua data termasuk yang tidak lengkap</td></tr>
+    </table>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>transaksi = pd.DataFrame({
+    "produk_id": [1, 2, 3],
+    "jumlah": [12, 8, 15],
+})
+produk_master = pd.DataFrame({
+    "produk_id": [1, 2, 4],
+    "nama_produk": ["Kopi Susu", "Roti Bakar", "Donat"],
+})
+
+hasil_inner = pd.merge(transaksi, produk_master, on="produk_id", how="inner")
+# hanya produk_id 1 dan 2 (3 & 4 hilang karena tidak cocok di kedua tabel)
+
+hasil_left = pd.merge(transaksi, produk_master, on="produk_id", how="left")
+# semua baris transaksi (1,2,3) dipertahankan; produk_id 3 -> nama_produk jadi NaN
+
+print(hasil_left)</code></pre></div>
+    <div class="note"><span class="lbl"><code>merge</code> vs <code>join</code></span><p><code>df.join()</code> adalah jalan pintas untuk menggabungkan berdasarkan <strong>index</strong> (bukan kolom biasa), sedangkan <code>pd.merge()</code> lebih fleksibel karena bisa menggabungkan berdasarkan kolom kunci apa pun lewat parameter <code>on</code>.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Menyimpan ke data/processed</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>data_gabungan = pd.merge(transaksi, produk_master, on="produk_id", how="left")
+data_gabungan.to_csv("data/processed/transaksi_gabungan.csv", index=False)</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Jumlah baris file hasil gabungan sesuai jenis <code>how</code> yang dipilih (misalnya <code>left</code> menghasilkan jumlah baris sama persis dengan tabel kiri), dan kolom dari kedua tabel asal semuanya muncul.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Latihan</h2>
+    <ol>
+      <li>Buat database SQLite <code>toko.db</code> berisi tabel <code>transaksi</code> dengan minimal 5 baris, lalu ambil ringkasan total jumlah per produk memakai <code>pd.read_sql_query</code>.</li>
+      <li>Ambil data dari satu API publik gratis pilihanmu (misalnya API kurs mata uang atau API cuaca), ubah hasil JSON-nya menjadi DataFrame memakai <code>pd.json_normalize</code>.</li>
+      <li>Cari satu halaman web publik yang mengizinkan scraping (cek <code>robots.txt</code>-nya terlebih dahulu), ambil satu tabel sederhana dengan <code>pd.read_html</code> atau <code>BeautifulSoup</code>.</li>
+      <li>Gabungkan ketiga hasil data di atas (SQL, API, scraping) menjadi satu DataFrame memakai <code>concat</code>/<code>merge</code> sesuai konteksnya, lalu simpan ke <code>data/processed/gabungan_pertemuan4.csv</code>.</li>
+    </ol>
+
+    <footer>Setelah mampu mengumpulkan data dari berbagai sumber, Pertemuan 5 akan fokus pada tahap yang paling banyak menyita waktu dalam proyek nyata: membersihkan data yang kotor, tidak konsisten, dan tidak lengkap. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

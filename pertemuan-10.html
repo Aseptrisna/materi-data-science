@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Klasifikasi: Logistic Regression, Decision Tree &amp; KNN</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Regresi vs Klasifikasi</a></li>
+      <li><a href="#s3">Dataset: Prediksi Pelanggan Membeli</a></li>
+      <li><a href="#s4">Logistic Regression &amp; Sigmoid</a></li>
+      <li><a href="#s5">Melatih Logistic Regression</a></li>
+      <li><a href="#s6">Decision Tree Classifier</a></li>
+      <li><a href="#s7">Mengontrol Overfitting dengan max_depth</a></li>
+      <li><a href="#s8">Visualisasi Pohon: plot_tree</a></li>
+      <li><a href="#s9">K-Nearest Neighbors</a></li>
+      <li><a href="#s10">Pengaruh Nilai K</a></li>
+      <li><a href="#s11">Scaling Sebelum KNN</a></li>
+      <li><a href="#s12">Metrik Dasar: Accuracy</a></li>
+      <li><a href="#s13">Perbandingan Tiga Model</a></li>
+      <li><a href="#s14">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 10 &middot; Machine Learning</span>
+      <h1>Klasifikasi: Logistic Regression, Decision Tree &amp; KNN</h1>
+      <p class="sub">Jika Pertemuan 9 memprediksi angka, pertemuan ini memprediksi kategori. Kita akan membandingkan tiga algoritma klasifikasi paling fundamental &mdash; Logistic Regression, Decision Tree, dan K-Nearest Neighbors &mdash; pada kasus memprediksi apakah pelanggan akan membeli produk tertentu.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Regresi vs Klasifikasi</a></li>
+        <li><a href="#s3">03. Dataset Pelanggan</a></li>
+        <li><a href="#s4">04. Logistic Regression &amp; Sigmoid</a></li>
+        <li><a href="#s5">05. Melatih Logistic Regression</a></li>
+        <li><a href="#s6">06. Decision Tree Classifier</a></li>
+        <li><a href="#s7">07. max_depth &amp; Overfitting</a></li>
+        <li><a href="#s8">08. plot_tree</a></li>
+        <li><a href="#s9">09. K-Nearest Neighbors</a></li>
+        <li><a href="#s10">10. Pengaruh Nilai K</a></li>
+        <li><a href="#s11">11. Scaling Sebelum KNN</a></li>
+        <li><a href="#s12">12. Accuracy Score</a></li>
+        <li><a href="#s13">13. Perbandingan Tiga Model</a></li>
+        <li><a href="#s14">14. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Setelah pertemuan ini, mahasiswa dapat menjelaskan perbedaan regresi dan klasifikasi, serta melatih, membandingkan, dan mengevaluasi tiga algoritma klasifikasi dasar menggunakan <code>scikit-learn</code>.</p>
+    <ul>
+      <li>Sudah memahami alur kerja <code>scikit-learn</code> (fit, predict, score) dan train/test split dari Pertemuan 9.</li>
+      <li>Jalankan <code>pip install scikit-learn matplotlib</code> bila belum terpasang.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Regresi vs Klasifikasi</h2>
+    <p>Keduanya sama-sama <strong>supervised learning</strong>, tapi berbeda pada jenis target yang diprediksi.</p>
+    <table>
+      <tr><th>Aspek</th><th>Regresi</th><th>Klasifikasi</th></tr>
+      <tr><td>Jenis target</td><td>angka kontinu</td><td>kategori/kelas diskrit</td></tr>
+      <tr><td>Contoh target</td><td>harga rumah, suhu, pendapatan</td><td>beli/tidak, spam/bukan spam, jenis produk</td></tr>
+      <tr><td>Contoh algoritma</td><td>Linear Regression</td><td>Logistic Regression, Decision Tree, KNN</td></tr>
+      <tr><td>Metrik evaluasi</td><td>MAE, RMSE, R&sup2;</td><td>Accuracy, precision, recall, confusion matrix</td></tr>
+    </table>
+
+    <h2 id="s3"><span class="badge">03</span>Dataset: Prediksi Pelanggan Membeli</h2>
+    <p>Kita memakai dataset 150 kunjungan pelanggan toko online UMKM, <code>kunjungan_pelanggan.csv</code>, untuk memprediksi target biner <code>beli</code> (1 = membeli, 0 = tidak membeli) dari perilaku kunjungan mereka.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">data/raw/kunjungan_pelanggan.csv</span></div><pre><code>usia,lama_kunjungan_menit,jumlah_produk_dilihat,pernah_beli_sebelumnya,beli
+25,8.5,4,0,0
+34,15.2,9,1,1
+45,3.1,2,0,0
+29,20.4,12,1,1
+52,6.0,3,0,0
+...</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/10-klasifikasi.ipynb</span></div><pre><code>import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score
+
+df = pd.read_csv("../data/raw/kunjungan_pelanggan.csv")
+
+fitur = ["usia", "lama_kunjungan_menit", "jumlah_produk_dilihat", "pernah_beli_sebelumnya"]
+X = df[fitur]
+y = df["beli"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa <code>stratify=y</code>?</span><p>Memastikan proporsi kelas 0 dan 1 di data latih dan data uji tetap seimbang seperti di data asli &mdash; penting terutama saat salah satu kelas jumlahnya jauh lebih sedikit (data tidak seimbang).</p></div>
+
+    <h2 id="s4"><span class="badge">04</span>Logistic Regression &amp; Sigmoid</h2>
+    <p>Meski namanya mengandung kata "regression", <strong>Logistic Regression</strong> sebenarnya dipakai untuk <strong>klasifikasi</strong>, bukan memprediksi angka kontinu. Namanya berasal dari cara kerjanya: ia menghitung kombinasi linear dari fitur (seperti regresi linear), lalu melewatkan hasilnya ke <strong>fungsi sigmoid</strong> agar outputnya selalu berada di rentang 0-1 &mdash; bisa ditafsirkan sebagai probabilitas.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">ilustrasi sigmoid</span></div><pre><code>import numpy as np
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# z = kombinasi linear fitur (seperti pada regresi linear)
+print(sigmoid(-5))   # mendekati 0 -> diprediksi kelas 0
+print(sigmoid(0))    # tepat 0.5   -> titik keputusan
+print(sigmoid(5))    # mendekati 1 -> diprediksi kelas 1</code></pre></div>
+    <p>Jika hasil sigmoid &ge; 0.5, model memprediksi kelas 1 (beli); jika &lt; 0.5, kelas 0 (tidak beli). Ambang 0.5 ini bisa disesuaikan tergantung kebutuhan bisnis.</p>
+
+    <h2 id="s5"><span class="badge">05</span>Melatih Logistic Regression</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">LogisticRegression</span></div><pre><code>model_logreg = LogisticRegression()
+model_logreg.fit(X_train, y_train)
+
+y_pred_logreg = model_logreg.predict(X_test)
+akurasi_logreg = accuracy_score(y_test, y_pred_logreg)
+
+print(f"Akurasi Logistic Regression: {akurasi_logreg:.2%}")</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Nilai akurasi muncul sebagai angka antara 0 dan 1 (ditampilkan sebagai persentase), tanpa error <code>ConvergenceWarning</code> yang berulang &mdash; jika muncul warning tersebut, biasanya solusinya menambah <code>max_iter</code>, misalnya <code>LogisticRegression(max_iter=1000)</code>.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Decision Tree Classifier</h2>
+    <p><strong>Decision Tree</strong> membuat keputusan dengan serangkaian pertanyaan bercabang berdasarkan fitur, mirip flowchart &mdash; misalnya "apakah <code>jumlah_produk_dilihat &gt; 6</code>? jika ya, cek pertanyaan berikutnya; jika tidak, prediksi tidak beli."</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">DecisionTreeClassifier</span></div><pre><code>model_tree = DecisionTreeClassifier(max_depth=4, random_state=42)
+model_tree.fit(X_train, y_train)
+
+y_pred_tree = model_tree.predict(X_test)
+akurasi_tree = accuracy_score(y_test, y_pred_tree)
+
+print(f"Akurasi Decision Tree: {akurasi_tree:.2%}")</code></pre></div>
+    <p>Pada setiap percabangan, algoritma memilih fitur dan titik potong (split) yang paling memisahkan kelas 0 dan 1 secara bersih, diukur dengan metrik seperti Gini impurity atau entropy.</p>
+
+    <h2 id="s7"><span class="badge">07</span>max_depth &amp; Overfitting</h2>
+    <p>Tanpa batasan, Decision Tree bisa terus bercabang sampai setiap daun hanya berisi satu baris data &mdash; menghafal data latih secara sempurna, tapi gagal menggeneralisasi ke data baru (overfitting, lihat Pertemuan 9 bagian 06).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">membandingkan max_depth</span></div><pre><code>for depth in [2, 4, None]:
+    model = DecisionTreeClassifier(max_depth=depth, random_state=42)
+    model.fit(X_train, y_train)
+    akurasi_train = accuracy_score(y_train, model.predict(X_train))
+    akurasi_test = accuracy_score(y_test, model.predict(X_test))
+    print(f"max_depth={depth}: train={akurasi_train:.2%}, test={akurasi_test:.2%}")</code></pre></div>
+    <div class="warn"><span class="lbl">Tanda overfitting</span><p>Jika akurasi di data latih jauh lebih tinggi daripada di data uji (misalnya 99% vs 70%), model kemungkinan overfitting. Membatasi <code>max_depth</code> adalah cara paling sederhana membuat Decision Tree lebih sederhana dan tergeneralisasi.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>plot_tree</h2>
+    <p><code>plot_tree</code> memvisualisasikan struktur pohon keputusan secara lengkap &mdash; fitur apa yang dipakai di tiap split, ambang nilainya, dan distribusi kelas di tiap daun.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">visualisasi pohon</span></div><pre><code>import matplotlib.pyplot as plt
+
+plt.figure(figsize=(16, 8))
+plot_tree(
+    model_tree,
+    feature_names=fitur,
+    class_names=["Tidak Beli", "Beli"],
+    filled=True,
+    rounded=True,
+    fontsize=9
+)
+plt.show()</code></pre></div>
+    <p>Kotak yang lebih gelap (dengan <code>filled=True</code>) menandakan daun tersebut lebih "yakin" terhadap satu kelas tertentu &mdash; alat bantu yang sangat berguna untuk menjelaskan logika model ke pemilik bisnis yang tidak familiar dengan ML.</p>
+
+    <h2 id="s9"><span class="badge">09</span>K-Nearest Neighbors</h2>
+    <p><strong>K-Nearest Neighbors (KNN)</strong> mengklasifikasikan data baru berdasarkan kelas mayoritas dari <code>k</code> tetangga terdekatnya (diukur dengan jarak, biasanya jarak Euclidean) di data latih &mdash; tidak ada proses "belajar" eksplisit, model menyimpan seluruh data latih dan membandingkan jarak saat prediksi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">KNeighborsClassifier</span></div><pre><code>model_knn = KNeighborsClassifier(n_neighbors=5)
+model_knn.fit(X_train, y_train)
+
+y_pred_knn = model_knn.predict(X_test)
+akurasi_knn = accuracy_score(y_test, y_pred_knn)
+
+print(f"Akurasi KNN (k=5): {akurasi_knn:.2%}")</code></pre></div>
+
+    <h2 id="s10"><span class="badge">10</span>Pengaruh Nilai K</h2>
+    <p>Nilai <code>k</code> yang terlalu kecil (misalnya k=1) membuat model sangat sensitif terhadap noise/outlier (mudah overfitting). Nilai <code>k</code> yang terlalu besar membuat model terlalu "menggeneralisasi" dan bisa mengabaikan pola lokal penting (underfitting).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">membandingkan nilai k</span></div><pre><code>for k in [1, 3, 5, 9, 15]:
+    model = KNeighborsClassifier(n_neighbors=k)
+    model.fit(X_train, y_train)
+    akurasi = accuracy_score(y_test, model.predict(X_test))
+    print(f"k={k}: akurasi test = {akurasi:.2%}")</code></pre></div>
+    <div class="note"><span class="lbl">Tips memilih k</span><p>Umumnya dicoba beberapa nilai k ganjil (menghindari seri suara pada klasifikasi biner) dan dipilih yang memberi akurasi terbaik pada data uji/validasi, bukan ditebak sembarangan.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>Scaling Sebelum KNN</h2>
+    <p>Karena KNN berbasis perhitungan jarak, fitur dengan skala angka jauh lebih besar (misalnya <code>lama_kunjungan_menit</code> berkisar 0-30) akan mendominasi perhitungan jarak dibanding fitur berskala kecil (misalnya <code>pernah_beli_sebelumnya</code> hanya 0 atau 1) &mdash; walau keduanya sama pentingnya secara substansi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">StandardScaler sebelum KNN</span></div><pre><code>scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model_knn_scaled = KNeighborsClassifier(n_neighbors=5)
+model_knn_scaled.fit(X_train_scaled, y_train)
+
+akurasi_knn_scaled = accuracy_score(y_test, model_knn_scaled.predict(X_test_scaled))
+print(f"Akurasi KNN (k=5, setelah scaling): {akurasi_knn_scaled:.2%}")</code></pre></div>
+    <div class="warn"><span class="lbl">Jangan lupa: fit scaler hanya di data latih</span><p>Gunakan <code>fit_transform</code> pada <code>X_train</code> dan <code>transform</code> saja (tanpa fit ulang) pada <code>X_test</code>. Jika scaler di-fit ulang pada data uji, informasi dari data uji "bocor" ke proses training (data leakage), membuat evaluasi model tidak jujur.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Accuracy Score</h2>
+    <p><strong>Accuracy</strong> adalah metrik klasifikasi paling dasar: proporsi prediksi yang benar dari seluruh prediksi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">rumus accuracy</span></div><pre><code># accuracy = (prediksi benar) / (total prediksi)
+akurasi = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {akurasi:.2%}")</code></pre></div>
+    <div class="note"><span class="lbl">Cukupkah accuracy saja?</span><p>Untuk data yang seimbang (jumlah kelas 0 dan 1 mirip), accuracy cukup representatif. Tapi jika data sangat tidak seimbang (misalnya 95% tidak beli, 5% beli), accuracy tinggi bisa menipu &mdash; model yang selalu menebak "tidak beli" pun akan mendapat accuracy 95%. Metrik lebih lengkap seperti precision, recall, dan confusion matrix akan diperdalam di Pertemuan 11.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Perbandingan Tiga Model</h2>
+    <p>Menjalankan ketiga model pada data (fitur) yang sama memudahkan perbandingan performa secara langsung.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">tabel perbandingan</span></div><pre><code>hasil = pd.DataFrame({
+    "Model": ["Logistic Regression", "Decision Tree (max_depth=4)", "KNN (k=5, scaled)"],
+    "Akurasi": [akurasi_logreg, akurasi_tree, akurasi_knn_scaled]
+}).sort_values("Akurasi", ascending=False)
+
+print(hasil)</code></pre></div>
+    <table>
+      <tr><th>Model</th><th>Kelebihan</th><th>Kekurangan</th></tr>
+      <tr><td>Logistic Regression</td><td>Cepat, mudah diinterpretasi lewat koefisien</td><td>Kurang menangkap hubungan non-linear kompleks</td></tr>
+      <tr><td>Decision Tree</td><td>Mudah divisualisasikan &amp; dijelaskan ke non-teknis</td><td>Mudah overfitting tanpa <code>max_depth</code></td></tr>
+      <tr><td>K-Nearest Neighbors</td><td>Sederhana, tanpa asumsi bentuk data</td><td>Lambat untuk data besar, wajib scaling</td></tr>
+    </table>
+
+    <h2 id="s14"><span class="badge">14</span>Latihan</h2>
+    <ol>
+      <li>Perbesar dataset <code>kunjungan_pelanggan.csv</code> menjadi minimal 100 baris (boleh data buatan sendiri).</li>
+      <li>Latih ketiga model (Logistic Regression, Decision Tree, KNN) pada dataset tersebut dan bandingkan akurasinya dalam satu tabel seperti bagian 13.</li>
+      <li>Coba 3 nilai <code>max_depth</code> berbeda untuk Decision Tree, identifikasi tanda-tanda overfitting dari selisih akurasi train vs test.</li>
+      <li>Coba 3 nilai <code>k</code> berbeda untuk KNN (dengan data yang sudah di-scaling), tentukan nilai k terbaik untuk datasetmu.</li>
+      <li>Tuliskan satu paragraf kesimpulan: model mana yang kamu rekomendasikan untuk kasus ini dan kenapa.</li>
+    </ol>
+
+    <footer>Dengan tiga model klasifikasi dasar ini, Pertemuan 11 akan memperdalam evaluasi model secara menyeluruh: confusion matrix, precision, recall, F1-score, serta validasi silang untuk mendeteksi overfitting dengan lebih tepat. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

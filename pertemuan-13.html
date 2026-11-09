@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Feature Engineering &amp; Pipeline scikit-learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Apa itu Feature Engineering</a></li>
+      <li><a href="#s3">Dataset Contoh: Prediksi Churn</a></li>
+      <li><a href="#s4">Binning (Diskritisasi)</a></li>
+      <li><a href="#s5">Fitur Interaksi</a></li>
+      <li><a href="#s6">Ekstraksi Fitur dari Tanggal</a></li>
+      <li><a href="#s7">Feature Selection: Correlation Threshold</a></li>
+      <li><a href="#s8">Feature Selection: SelectKBest</a></li>
+      <li><a href="#s9">Data Tidak Seimbang: class_weight</a></li>
+      <li><a href="#s10">Data Tidak Seimbang: SMOTE</a></li>
+      <li><a href="#s11">ColumnTransformer</a></li>
+      <li><a href="#s12">Menyatukan dengan Pipeline</a></li>
+      <li><a href="#s13">Menyimpan Pipeline dengan joblib</a></li>
+      <li><a href="#s14">Memuat Ulang Tanpa Retraining</a></li>
+      <li><a href="#s15">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 13 &middot; Machine Learning</span>
+      <h1>Feature Engineering &amp; Pipeline scikit-learn</h1>
+      <p class="sub">Model secanggih apa pun terbatas oleh kualitas fitur yang diberikan. Pertemuan ini membahas teknik membuat fitur baru yang lebih informatif, menyeleksi fitur yang relevan, menangani data tidak seimbang, dan menyatukan semuanya ke dalam satu Pipeline scikit-learn yang siap disimpan dan dipakai ulang.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Apa itu Feature Engineering</a></li>
+        <li><a href="#s3">03. Dataset Contoh: Prediksi Churn</a></li>
+        <li><a href="#s4">04. Binning (Diskritisasi)</a></li>
+        <li><a href="#s5">05. Fitur Interaksi</a></li>
+        <li><a href="#s6">06. Ekstraksi Fitur dari Tanggal</a></li>
+        <li><a href="#s7">07. Feature Selection: Correlation Threshold</a></li>
+        <li><a href="#s8">08. Feature Selection: SelectKBest</a></li>
+        <li><a href="#s9">09. Data Tidak Seimbang: class_weight</a></li>
+        <li><a href="#s10">10. Data Tidak Seimbang: SMOTE</a></li>
+        <li><a href="#s11">11. ColumnTransformer</a></li>
+        <li><a href="#s12">12. Menyatukan dengan Pipeline</a></li>
+        <li><a href="#s13">13. Menyimpan Pipeline dengan joblib</a></li>
+        <li><a href="#s14">14. Memuat Ulang Tanpa Retraining</a></li>
+        <li><a href="#s15">15. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat membuat fitur baru yang lebih informatif dari data mentah, menyeleksi fitur yang relevan, menangani data tidak seimbang, menyatukan preprocessing dan model dalam satu <code>Pipeline</code> scikit-learn, dan menyimpan pipeline terlatih untuk dipakai ulang tanpa retraining.</p>
+    <ul>
+      <li>Sudah familiar dengan <code>train_test_split</code>, encoding kategorikal dasar, dan scaling (Pertemuan 5, 9-12).</li>
+      <li>Library tambahan: <code>joblib</code> (biasanya sudah ikut terpasang bersama scikit-learn). Untuk bagian SMOTE, perlu <code>pip install imbalanced-learn</code> terpisah.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Apa itu Feature Engineering</h2>
+    <p><strong>Feature engineering</strong> adalah proses membuat, mengubah, atau menyeleksi fitur (kolom input) agar lebih mudah ditangkap pola-nya oleh model. Ini mencakup segala sesuatu dari membuat fitur baru dari fitur yang sudah ada, mengubah representasi data, sampai membuang fitur yang tidak relevan.</p>
+    <div class="note"><span class="lbl">Kenapa sering lebih berpengaruh daripada ganti algoritma?</span><p>Pepatah umum di data science: <em>"garbage in, garbage out"</em>. Mengganti <code>LogisticRegression</code> dengan <code>RandomForestClassifier</code> yang jauh lebih kompleks sering memberi kenaikan performa yang kecil, dibanding menambahkan satu fitur yang benar-benar menangkap sinyal penting (misalnya "apakah pelanggan aktif minggu lalu") — fitur yang baik membuat pola menjadi lebih mudah dipelajari oleh model sesederhana apa pun.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Dataset Contoh: Prediksi Churn</h2>
+    <p>Sepanjang pertemuan ini kita memakai dataset buatan sendiri: data pelanggan layanan berlangganan, dengan tugas memprediksi <strong>churn</strong> (<code>1</code> = berhenti berlangganan, <code>0</code> = tetap berlangganan). Dataset sengaja dibuat tidak seimbang (sekitar 15% churn) dan memuat kolom numerik, kategorikal, serta tanggal.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/13-feature-engineering.ipynb</span></div><pre><code>import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+n = 1000
+
+df = pd.DataFrame({
+    "usia": rng.integers(18, 65, n),
+    "lama_berlangganan_bulan": rng.integers(1, 48, n),
+    "tagihan_bulanan": rng.normal(150000, 40000, n).round(-3),
+    "kota": rng.choice(["Bandar Lampung", "Metro", "Pringsewu"], n, p=[0.6, 0.25, 0.15]),
+    "paket": rng.choice(["Basic", "Reguler", "Premium"], n, p=[0.5, 0.35, 0.15]),
+    "tanggal_daftar": pd.to_datetime("2022-01-01") + pd.to_timedelta(rng.integers(0, 1000, n), unit="D"),
+})
+
+# Buat label churn, dibuat tidak seimbang & berkorelasi dengan lama_berlangganan & tagihan
+churn_prob = 0.35 - df["lama_berlangganan_bulan"] * 0.004 + (df["tagihan_bulanan"] > 200000) * 0.1
+churn_prob = churn_prob.clip(0.02, 0.9)
+df["churn"] = (rng.random(n) < churn_prob).astype(int)
+
+print(df["churn"].value_counts(normalize=True))
+df.head()</code></pre></div>
+
+    <h2 id="s4"><span class="badge">04</span>Binning (Diskritisasi)</h2>
+    <p><strong>Binning</strong> mengubah fitur numerik kontinu menjadi kategori/rentang (bin). Ini berguna saat hubungan fitur dengan target tidak linear, atau saat ingin menyederhanakan interpretasi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df["kategori_lama_langganan"] = pd.cut(
+    df["lama_berlangganan_bulan"],
+    bins=[0, 6, 12, 24, 48],
+    labels=["baru (0-6 bln)", "menengah (6-12 bln)", "lama (12-24 bln)", "sangat lama (24-48 bln)"]
+)
+
+print(df["kategori_lama_langganan"].value_counts())
+print(df.groupby("kategori_lama_langganan")["churn"].mean())</code></pre></div>
+    <div class="note"><span class="lbl">Kapan binning membantu?</span><p>Jika rata-rata churn pada kategori "baru" jauh lebih tinggi daripada kategori "sangat lama", model linear seperti Logistic Regression bisa lebih mudah menangkap pola ini lewat kategori diskret dibanding mengandalkan hubungan linear murni dengan angka bulan.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Fitur Interaksi</h2>
+    <p><strong>Fitur interaksi</strong> dibuat dengan mengombinasikan dua atau lebih fitur yang sudah ada, untuk menangkap efek gabungan yang tidak terlihat jika fitur dilihat terpisah.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code># Tagihan per bulan langganan -> menangkap "seberapa mahal" relatif terhadap lama berlangganan
+df["tagihan_per_bulan_langganan"] = df["tagihan_bulanan"] / df["lama_berlangganan_bulan"].replace(0, 1)
+
+# Interaksi kategorikal: kombinasi kota & paket, mungkin preferensi beda per kombinasi
+df["kota_paket"] = df["kota"] + "_" + df["paket"]
+
+print(df[["tagihan_per_bulan_langganan", "kota_paket"]].head())</code></pre></div>
+    <div class="note"><span class="lbl">Contoh kasus</span><p>Pelanggan baru dengan tagihan tinggi (<code>tagihan_per_bulan_langganan</code> besar) mungkin punya pola churn berbeda dibanding pelanggan lama dengan tagihan sama — fitur interaksi membantu model menangkap nuansa semacam ini tanpa harus membangun arsitektur model yang lebih kompleks.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Ekstraksi Fitur dari Tanggal</h2>
+    <p>Kolom tanggal mentah (<code>datetime</code>) jarang bisa langsung dipakai model — perlu diekstrak menjadi komponen yang lebih bermakna seperti hari, bulan, atau apakah termasuk akhir pekan.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df["bulan_daftar"] = df["tanggal_daftar"].dt.month
+df["hari_daftar"] = df["tanggal_daftar"].dt.day_name()
+df["is_weekend_daftar"] = df["tanggal_daftar"].dt.dayofweek.isin([5, 6]).astype(int)
+
+print(df[["tanggal_daftar", "bulan_daftar", "hari_daftar", "is_weekend_daftar"]].head())</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>bulan_daftar</code> berisi angka 1-12, <code>hari_daftar</code> berisi nama hari dalam bahasa Inggris (default pandas), dan <code>is_weekend_daftar</code> hanya berisi 0 atau 1.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Feature Selection: Correlation Threshold</h2>
+    <p>Cara paling sederhana menyeleksi fitur numerik: melihat korelasinya dengan target, lalu membuang fitur yang hampir tidak berkorelasi sama sekali (kemungkinan tidak informatif).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>fitur_numerik = ["usia", "lama_berlangganan_bulan", "tagihan_bulanan", "tagihan_per_bulan_langganan"]
+korelasi = df[fitur_numerik + ["churn"]].corr()["churn"].drop("churn")
+print(korelasi.sort_values(key=abs, ascending=False))
+
+threshold = 0.05
+fitur_terpilih = korelasi[abs(korelasi) > threshold].index.tolist()
+print("Fitur yang lolos threshold:", fitur_terpilih)</code></pre></div>
+    <div class="warn"><span class="lbl">Korelasi hanya menangkap hubungan linear</span><p>Fitur dengan korelasi linear rendah terhadap target bisa saja tetap penting jika hubungannya non-linear (misalnya berbentuk U). Gunakan correlation threshold sebagai penyaring awal yang cepat, bukan keputusan final.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Feature Selection: SelectKBest</h2>
+    <p><code>SelectKBest</code> memilih <code>k</code> fitur dengan skor statistik tertinggi terhadap target, menggunakan uji statistik seperti <code>f_classif</code> (ANOVA F-test, cocok untuk fitur numerik vs target kategorikal).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.feature_selection import SelectKBest, f_classif
+
+X_numerik = df[fitur_numerik]
+y = df["churn"]
+
+selector = SelectKBest(score_func=f_classif, k=3)
+selector.fit(X_numerik, y)
+
+skor_fitur = pd.Series(selector.scores_, index=fitur_numerik).sort_values(ascending=False)
+print(skor_fitur)
+print("3 fitur terbaik:", X_numerik.columns[selector.get_support()].tolist())</code></pre></div>
+
+    <h2 id="s9"><span class="badge">09</span>Data Tidak Seimbang: class_weight</h2>
+    <p>Dataset churn kita tidak seimbang (minoritas churn &asymp; 15-30%). Cara paling praktis menangani ini tanpa mengubah data: memberi bobot lebih besar pada kelas minoritas saat training lewat parameter <code>class_weight="balanced"</code>, yang otomatis dihitung berbanding terbalik dengan frekuensi kelas.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_numerik, y, test_size=0.25, stratify=y, random_state=42
+)
+
+model_biasa = LogisticRegression(max_iter=1000)
+model_biasa.fit(X_train, y_train)
+
+model_balanced = LogisticRegression(max_iter=1000, class_weight="balanced")
+model_balanced.fit(X_train, y_train)
+
+print("Tanpa class_weight:\n", classification_report(y_test, model_biasa.predict(X_test)))
+print("Dengan class_weight='balanced':\n", classification_report(y_test, model_balanced.predict(X_test)))</code></pre></div>
+    <div class="note"><span class="lbl">Efek yang diharapkan</span><p>Model dengan <code>class_weight="balanced"</code> biasanya mengorbankan sedikit precision/accuracy keseluruhan demi recall kelas minoritas (churn) yang jauh lebih baik — relevan karena kelas minoritas inilah yang ingin dideteksi.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Data Tidak Seimbang: SMOTE</h2>
+    <p><strong>SMOTE</strong> (Synthetic Minority Oversampling Technique) membuat sampel sintetis baru untuk kelas minoritas, dengan menginterpolasi antara sampel minoritas yang sudah ada dan tetangga terdekatnya — bukan sekadar menduplikasi data yang sama persis.</p>
+    <div class="warn"><span class="lbl">Perlu instalasi terpisah</span><p>SMOTE bukan bagian dari scikit-learn utama. Install dulu library <code>imbalanced-learn</code>:</p></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>pip install imbalanced-learn</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from imblearn.over_sampling import SMOTE
+
+smote = SMOTE(random_state=42)
+X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+
+print("Sebelum SMOTE:", y_train.value_counts().to_dict())
+print("Sesudah SMOTE:", y_train_smote.value_counts().to_dict())
+
+model_smote = LogisticRegression(max_iter=1000)
+model_smote.fit(X_train_smote, y_train_smote)
+print(classification_report(y_test, model_smote.predict(X_test)))</code></pre></div>
+    <div class="note"><span class="lbl">SMOTE hanya diterapkan pada data training</span><p>SMOTE harus dijalankan <strong>setelah</strong> <code>train_test_split</code> dan hanya pada <code>X_train</code>/<code>y_train</code>. Menerapkannya sebelum split akan membuat data sintetis "bocor" ke test set, membuat evaluasi menjadi terlalu optimis (data leakage).</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>ColumnTransformer</h2>
+    <p>Dataset kita punya kolom numerik (perlu scaling) dan kategorikal (perlu encoding) yang harus diperlakukan berbeda. <code>ColumnTransformer</code> memungkinkan menerapkan transformasi berbeda pada subset kolom berbeda, lalu menggabungkan hasilnya menjadi satu matriks fitur.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+
+kolom_numerik = ["usia", "lama_berlangganan_bulan", "tagihan_bulanan", "tagihan_per_bulan_langganan"]
+kolom_kategorikal = ["kota", "paket"]
+
+preprocessor = ColumnTransformer(transformers=[
+    ("num", StandardScaler(), kolom_numerik),
+    ("cat", OneHotEncoder(handle_unknown="ignore"), kolom_kategorikal),
+])</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa <code>handle_unknown="ignore"</code>?</span><p>Jika di data produksi nanti muncul kategori baru yang tidak pernah dilihat saat training (misalnya kota baru), <code>OneHotEncoder</code> tidak akan error — kategori tersebut cukup direpresentasikan sebagai semua nol.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Menyatukan dengan Pipeline</h2>
+    <p><code>Pipeline</code> menyatukan <code>preprocessor</code> dan model menjadi satu objek tunggal, sehingga <code>fit</code> dan <code>predict</code> cukup dipanggil sekali pada data mentah — tidak perlu memanggil <code>transform</code> secara manual setiap kali.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+
+fitur_final = kolom_numerik + kolom_kategorikal
+X_full = df[fitur_final]
+y_full = df["churn"]
+
+X_train_f, X_test_f, y_train_f, y_test_f = train_test_split(
+    X_full, y_full, test_size=0.25, stratify=y_full, random_state=42
+)
+
+pipeline = Pipeline(steps=[
+    ("preprocessor", preprocessor),
+    ("classifier", RandomForestClassifier(class_weight="balanced", random_state=42)),
+])
+
+pipeline.fit(X_train_f, y_train_f)
+y_pred_f = pipeline.predict(X_test_f)
+print(classification_report(y_test_f, y_pred_f))</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>pipeline.fit(X_train_f, y_train_f)</code> berjalan tanpa error meski <code>X_train_f</code> masih berisi kolom kategorikal mentah (string) — <code>ColumnTransformer</code> di dalam pipeline yang menangani encoding-nya secara otomatis.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Menyimpan Pipeline dengan joblib</h2>
+    <p>Setelah pipeline terlatih (preprocessing + model), kita bisa menyimpannya ke file dengan <code>joblib.dump</code>, supaya tidak perlu melatih ulang dari nol setiap kali ingin melakukan prediksi — langkah ini penting untuk deployment di Pertemuan 15.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import joblib
+
+joblib.dump(pipeline, "model/pipeline_churn.joblib")
+print("Pipeline berhasil disimpan ke model/pipeline_churn.joblib")</code></pre></div>
+    <div class="note"><span class="lbl">Pastikan folder sudah ada</span><p>Buat folder <code>model/</code> terlebih dahulu di root proyek jika belum ada, atau <code>joblib.dump</code> akan gagal dengan <code>FileNotFoundError</code>.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Memuat Ulang Tanpa Retraining</h2>
+    <p>Di sesi lain (bahkan di skrip/API berbeda), pipeline yang sudah disimpan bisa dimuat kembali dengan <code>joblib.load</code> dan langsung dipakai untuk prediksi pada data baru, tanpa perlu kode training sama sekali.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>import joblib
+import pandas as pd
+
+pipeline_loaded = joblib.load("model/pipeline_churn.joblib")
+
+pelanggan_baru = pd.DataFrame([{
+    "usia": 29,
+    "lama_berlangganan_bulan": 3,
+    "tagihan_bulanan": 220000,
+    "tagihan_per_bulan_langganan": 220000 / 3,
+    "kota": "Bandar Lampung",
+    "paket": "Premium",
+}])
+
+prediksi = pipeline_loaded.predict(pelanggan_baru)
+probabilitas = pipeline_loaded.predict_proba(pelanggan_baru)
+
+print("Prediksi churn:", prediksi[0])
+print("Probabilitas:", probabilitas[0])</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Kode di atas berjalan tanpa mengimpor <code>RandomForestClassifier</code> atau <code>ColumnTransformer</code> secara eksplisit — semua logika preprocessing dan model sudah terbungkus rapi di dalam objek <code>pipeline_loaded</code> hasil <code>joblib.load</code>.</p></div>
+    <div class="warn"><span class="lbl">Perhatikan versi library</span><p>Pipeline yang disimpan dengan versi scikit-learn tertentu idealnya dimuat kembali dengan versi yang sama/kompatibel. Perbedaan versi besar kadang memunculkan <code>warning</code> atau error saat <code>joblib.load</code>.</p></div>
+
+    <h2 id="s15"><span class="badge">15</span>Latihan</h2>
+    <ol>
+      <li>Tambahkan fitur interaksi baru dari dataset churn (misalnya "usia dikali lama berlangganan" atau kombinasi kategorikal lain), lalu cek apakah korelasinya terhadap <code>churn</code> lebih tinggi dari fitur aslinya.</li>
+      <li>Bandingkan <code>classification_report</code> dari pipeline di bagian 12 dengan versi yang memakai SMOTE pada data training (gabungkan <code>imblearn.pipeline.Pipeline</code> agar SMOTE hanya diterapkan saat training, bukan saat prediksi).</li>
+      <li>Ganti <code>RandomForestClassifier</code> di pipeline dengan <code>LogisticRegression</code>, latih ulang, simpan sebagai file <code>.joblib</code> berbeda, lalu bandingkan hasil prediksinya untuk data pelanggan baru yang sama.</li>
+      <li>Gunakan <code>SelectKBest</code> untuk memilih 2 fitur numerik terbaik, sisipkan sebagai langkah tambahan di dalam <code>Pipeline</code> sebelum classifier, lalu bandingkan performanya dengan pipeline yang memakai semua fitur.</li>
+    </ol>
+
+    <footer>Dengan pipeline yang sudah tersimpan rapi, Pertemuan 14 beralih sejenak ke jenis data yang berbeda: data time series, di mana urutan waktu menjadi informasi penting yang tidak boleh diacak saat training maupun evaluasi. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

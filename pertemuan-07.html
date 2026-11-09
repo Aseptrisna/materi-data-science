@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Statistika untuk Data Science</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Dataset yang Dipakai</a></li>
+      <li><a href="#s3">Ukuran Pemusatan</a></li>
+      <li><a href="#s4">Ukuran Sebaran</a></li>
+      <li><a href="#s5">Distribusi Normal &amp; Skewness</a></li>
+      <li><a href="#s6">Korelasi vs Kausalitas</a></li>
+      <li><a href="#s7">Pengantar Probabilitas</a></li>
+      <li><a href="#s8">Uji Hipotesis: Konsep Dasar</a></li>
+      <li><a href="#s9">T-Test: Dua Kelompok</a></li>
+      <li><a href="#s10">Chi-Square: Data Kategorikal</a></li>
+      <li><a href="#s11">Confidence Interval</a></li>
+      <li><a href="#s12">P-Value &amp; Signifikansi</a></li>
+      <li><a href="#s13">Jangan Disalahgunakan: P-Hacking</a></li>
+      <li><a href="#s14">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 7 &middot; Analisis</span>
+      <h1>Statistika untuk Data Science</h1>
+      <p class="sub">Visualisasi di Pertemuan 6 menunjukkan pola, tapi statistika yang menjawab pertanyaan paling penting: apakah pola itu nyata, atau hanya kebetulan? Pertemuan ini membangun fondasi statistik inferensial yang akan dipakai sepanjang pengambilan keputusan berbasis data.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Dataset yang Dipakai</a></li>
+        <li><a href="#s3">03. Ukuran Pemusatan</a></li>
+        <li><a href="#s4">04. Ukuran Sebaran</a></li>
+        <li><a href="#s5">05. Distribusi Normal &amp; Skewness</a></li>
+        <li><a href="#s6">06. Korelasi vs Kausalitas</a></li>
+        <li><a href="#s7">07. Pengantar Probabilitas</a></li>
+        <li><a href="#s8">08. Uji Hipotesis Dasar</a></li>
+        <li><a href="#s9">09. T-Test</a></li>
+        <li><a href="#s10">10. Chi-Square Test</a></li>
+        <li><a href="#s11">11. Confidence Interval</a></li>
+        <li><a href="#s12">12. P-Value &amp; Signifikansi</a></li>
+        <li><a href="#s13">13. P-Hacking</a></li>
+        <li><a href="#s14">14. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Setelah pertemuan ini, mahasiswa dapat menghitung dan menafsirkan ukuran pemusatan/sebaran, membedakan korelasi dari kausalitas, serta menjalankan dan menafsirkan uji hipotesis dasar (t-test, chi-square) menggunakan <code>scipy.stats</code>.</p>
+    <ul>
+      <li>Sudah memahami dasar <code>pandas</code> dan visualisasi dari Pertemuan 6.</li>
+      <li>Jalankan <code>pip install scipy</code> bila belum terpasang.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Dataset yang Dipakai</h2>
+    <p>Kita memakai dataset survei kepuasan 120 pelanggan dua cabang toko UMKM, <code>survei_pelanggan.csv</code>, berisi nilai belanja, lama belanja (menit), skor kepuasan (1-10), dan apakah pelanggan tersebut anggota member.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">data/raw/survei_pelanggan.csv</span></div><pre><code>id_pelanggan,cabang,nilai_belanja,lama_belanja_menit,skor_kepuasan,member
+1,Tanjung Karang,145000,18,8,Ya
+2,Tanjung Karang,89000,12,6,Tidak
+3,Kemiling,210000,25,9,Ya
+4,Kemiling,54000,8,5,Tidak
+5,Tanjung Karang,175000,20,7,Ya
+...</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/07-statistika.ipynb</span></div><pre><code>import pandas as pd
+import numpy as np
+from scipy import stats
+
+df = pd.read_csv("../data/raw/survei_pelanggan.csv")
+df.head()</code></pre></div>
+
+    <h2 id="s3"><span class="badge">03</span>Ukuran Pemusatan</h2>
+    <p><strong>Mean</strong> (rata-rata), <strong>median</strong> (nilai tengah), dan <strong>modus</strong> (nilai paling sering muncul) menggambarkan "pusat" sebuah distribusi data dari sudut pandang berbeda.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">ukuran pemusatan</span></div><pre><code>mean_belanja = df["nilai_belanja"].mean()
+median_belanja = df["nilai_belanja"].median()
+modus_belanja = df["nilai_belanja"].mode()[0]
+
+print(f"Mean   : {mean_belanja:,.0f}")
+print(f"Median : {median_belanja:,.0f}")
+print(f"Modus  : {modus_belanja:,.0f}")</code></pre></div>
+    <div class="note"><span class="lbl">Kapan median lebih dipercaya daripada mean?</span><p>Saat data memiliki outlier (misalnya satu transaksi sangat besar), mean akan "tertarik" ke arah outlier sementara median tetap stabil. Untuk data nilai belanja yang cenderung skewed, median sering jadi ukuran pemusatan yang lebih representatif.</p></div>
+
+    <h2 id="s4"><span class="badge">04</span>Ukuran Sebaran</h2>
+    <p><strong>Varians</strong> mengukur rata-rata kuadrat jarak setiap data ke mean, dan <strong>standar deviasi</strong> (akar dari varians) mengembalikannya ke satuan asli data — keduanya menunjukkan seberapa "tersebar" data di sekitar pusatnya.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">varians &amp; std</span></div><pre><code>varians = df["nilai_belanja"].var()
+std = df["nilai_belanja"].std()
+rentang = df["nilai_belanja"].max() - df["nilai_belanja"].min()
+
+print(f"Varians           : {varians:,.0f}")
+print(f"Standar deviasi   : {std:,.0f}")
+print(f"Rentang (range)   : {rentang:,.0f}")</code></pre></div>
+    <div class="note"><span class="lbl">Interpretasi cepat</span><p>Standar deviasi besar relatif terhadap mean berarti pelanggan sangat bervariasi dalam jumlah belanja (ada yang belanja sedikit, ada yang sangat banyak). Standar deviasi kecil berarti pelanggan cenderung belanja dalam rentang nilai yang mirip.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Distribusi Normal &amp; Skewness</h2>
+    <p><strong>Distribusi normal</strong> (kurva lonceng) adalah pola sebaran data yang simetris di sekitar mean, dengan sebagian besar nilai berkumpul di tengah. Banyak metode statistik mengasumsikan data mendekati normal.</p>
+    <p><strong>Skewness</strong> mengukur seberapa miring (asimetris) distribusi data: skewness positif berarti ekor panjang ke kanan (banyak nilai kecil, sedikit nilai sangat besar), skewness negatif sebaliknya.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">cek skewness</span></div><pre><code>import matplotlib.pyplot as plt
+import seaborn as sns
+
+skew_belanja = df["nilai_belanja"].skew()
+print(f"Skewness nilai_belanja: {skew_belanja:.2f}")
+
+sns.histplot(df["nilai_belanja"], kde=True)
+plt.title(f"Distribusi Nilai Belanja (skew={skew_belanja:.2f})")
+plt.show()</code></pre></div>
+    <table>
+      <tr><th>Nilai skewness</th><th>Artinya</th></tr>
+      <tr><td>mendekati 0</td><td>distribusi cenderung simetris/normal</td></tr>
+      <tr><td>&gt; 0 (positif)</td><td>condong kanan, ekor panjang ke nilai besar</td></tr>
+      <tr><td>&lt; 0 (negatif)</td><td>condong kiri, ekor panjang ke nilai kecil</td></tr>
+    </table>
+
+    <h2 id="s6"><span class="badge">06</span>Korelasi vs Kausalitas</h2>
+    <p>Korelasi menunjukkan dua variabel bergerak bersama, tapi <strong>tidak berarti satu menyebabkan yang lain</strong>. Ini adalah salah satu jebakan paling umum dalam interpretasi data.</p>
+    <div class="warn"><span class="lbl">Contoh korelasi palsu (spurious correlation)</span><p>Penjualan es krim dan jumlah kasus tenggelam di kolam renang sama-sama naik di bulan Juni-Agustus — berkorelasi kuat, tapi bukan karena es krim menyebabkan orang tenggelam. Keduanya disebabkan variabel ketiga: <strong>cuaca panas/musim liburan</strong>. Variabel yang menyembunyikan hubungan sebenarnya ini disebut <strong>confounding variable</strong>.</p></div>
+    <p>Untuk benar-benar mengklaim kausalitas (X menyebabkan Y), dibutuhkan desain eksperimen terkontrol (A/B testing) atau metode statistik kausal khusus — jauh lebih ketat daripada sekadar menghitung <code>df.corr()</code>.</p>
+
+    <h2 id="s7"><span class="badge">07</span>Pengantar Probabilitas</h2>
+    <p>Probabilitas adalah bahasa dasar di balik banyak model machine learning (termasuk Logistic Regression di Pertemuan 10). Dua konsep penting untuk permulaan:</p>
+    <ul>
+      <li><strong>Independent event</strong> — dua kejadian yang hasilnya tidak saling memengaruhi. Contoh: hasil undian pelanggan hari ini tidak memengaruhi hasil undian besok.</li>
+      <li><strong>Conditional probability</strong> P(A|B) — probabilitas A terjadi, <em>dengan syarat</em> B sudah terjadi. Contoh: probabilitas pelanggan puas (skor &ge; 8) <em>dengan syarat</em> dia member, dibanding probabilitas puas secara umum.</li>
+    </ul>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">conditional probability sederhana</span></div><pre><code>p_puas = (df["skor_kepuasan"] >= 8).mean()
+p_puas_member = (df[df["member"] == "Ya"]["skor_kepuasan"] >= 8).mean()
+
+print(f"P(puas)          = {p_puas:.2f}")
+print(f"P(puas | member) = {p_puas_member:.2f}")</code></pre></div>
+    <p>Jika <code>P(puas | member)</code> jauh lebih tinggi dari <code>P(puas)</code>, ada indikasi bahwa status member berkaitan dengan kepuasan — hipotesis yang bisa diuji lebih formal lewat uji hipotesis di bagian berikut.</p>
+
+    <h2 id="s8"><span class="badge">08</span>Uji Hipotesis: Konsep Dasar</h2>
+    <p>Uji hipotesis adalah cara formal menjawab: "apakah perbedaan yang saya lihat di data nyata secara statistik, atau bisa jadi hanya kebetulan karena sampel kecil?"</p>
+    <ul>
+      <li><strong>Hipotesis nol (H0)</strong> — asumsi awal bahwa tidak ada perbedaan/efek (misalnya rata-rata belanja member dan non-member sama).</li>
+      <li><strong>Hipotesis alternatif (H1)</strong> — ada perbedaan/efek nyata.</li>
+      <li><strong>p-value</strong> — probabilitas mendapatkan hasil seekstrem data yang diamati, <em>jika</em> H0 benar. Semakin kecil, semakin kuat bukti menolak H0.</li>
+    </ul>
+
+    <h2 id="s9"><span class="badge">09</span>T-Test: Dua Kelompok</h2>
+    <p><strong>Independent t-test</strong> membandingkan rata-rata dua kelompok numerik untuk menguji apakah perbedaannya signifikan — misalnya, apakah nilai belanja member benar-benar lebih tinggi dari non-member.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">scipy.stats.ttest_ind</span></div><pre><code>belanja_member = df[df["member"] == "Ya"]["nilai_belanja"]
+belanja_nonmember = df[df["member"] == "Tidak"]["nilai_belanja"]
+
+t_stat, p_value = stats.ttest_ind(belanja_member, belanja_nonmember, equal_var=False)
+
+print(f"t-statistic : {t_stat:.3f}")
+print(f"p-value     : {p_value:.4f}")
+
+alpha = 0.05
+if p_value < alpha:
+    print("Signifikan: tolak H0, ada perbedaan rata-rata belanja.")
+else:
+    print("Tidak signifikan: gagal tolak H0.")</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa <code>equal_var=False</code>?</span><p>Ini menjalankan Welch's t-test, yang tidak mengasumsikan kedua kelompok memiliki varians sama — pilihan lebih aman secara default saat ukuran/variasi kedua kelompok berbeda.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Chi-Square: Data Kategorikal</h2>
+    <p><strong>Chi-square test</strong> menguji apakah dua variabel <em>kategorikal</em> saling berhubungan — misalnya, apakah status member berkaitan dengan cabang tempat pelanggan berbelanja.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">scipy.stats.chi2_contingency</span></div><pre><code>tabel_kontingensi = pd.crosstab(df["cabang"], df["member"])
+print(tabel_kontingensi)
+
+chi2, p_value, dof, expected = stats.chi2_contingency(tabel_kontingensi)
+
+print(f"\nChi2       : {chi2:.3f}")
+print(f"p-value    : {p_value:.4f}")
+print(f"derajat bebas: {dof}")</code></pre></div>
+    <p>Jika p-value &lt; 0.05, ada indikasi bahwa proporsi member berbeda signifikan antar cabang — bukan sekadar variasi acak.</p>
+
+    <h2 id="s11"><span class="badge">11</span>Confidence Interval</h2>
+    <p><strong>Confidence interval (CI)</strong> 95% memberi rentang nilai yang kemungkinan besar memuat nilai populasi sebenarnya, bukan sekadar satu angka estimasi tunggal dari sampel.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">CI 95% untuk mean</span></div><pre><code>data = df["nilai_belanja"]
+mean = data.mean()
+sem = stats.sem(data)  # standard error of the mean
+
+ci_low, ci_high = stats.t.interval(0.95, len(data) - 1, loc=mean, scale=sem)
+
+print(f"Mean         : {mean:,.0f}")
+print(f"CI 95%       : [{ci_low:,.0f}, {ci_high:,.0f}]")</code></pre></div>
+    <div class="verify"><span class="lbl">Cara membaca CI 95%</span><p>Jika survei ini diulang berkali-kali dengan sampel berbeda, sekitar 95% dari rentang CI yang dihasilkan akan memuat rata-rata populasi sebenarnya. Rentang yang lebar berarti estimasi kurang presisi (butuh sampel lebih besar).</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>P-Value &amp; Signifikansi</h2>
+    <p>Ambang batas <code>alpha = 0.05</code> adalah konvensi umum: jika <code>p-value &lt; alpha</code>, hasil dianggap <strong>signifikan secara statistik</strong> — cukup bukti untuk menolak H0.</p>
+    <table>
+      <tr><th>Kondisi</th><th>Kesimpulan</th></tr>
+      <tr><td>p-value &lt; 0.05</td><td>signifikan, tolak H0</td></tr>
+      <tr><td>p-value &ge; 0.05</td><td>tidak cukup bukti, gagal tolak H0</td></tr>
+    </table>
+    <div class="warn"><span class="lbl">Signifikan secara statistik &ne; penting secara praktis</span><p>Dengan sampel sangat besar, perbedaan yang sangat kecil (misalnya Rp 500 beda rata-rata belanja) bisa saja "signifikan" secara statistik tapi tidak relevan secara bisnis. Selalu lihat juga besar efeknya (effect size), bukan hanya p-value.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Jangan Disalahgunakan: P-Hacking</h2>
+    <p><strong>P-hacking</strong> adalah praktik mengulang-ulang uji statistik dengan berbagai kombinasi variabel/subset data sampai kebetulan ditemukan p-value &lt; 0.05, lalu hanya melaporkan hasil itu — ini menyesatkan dan tidak ilmiah.</p>
+    <ul>
+      <li>Tentukan hipotesis dan variabel yang diuji <strong>sebelum</strong> melihat hasilnya, bukan mengubah-ubah setelah tahu hasilnya tidak signifikan.</li>
+      <li>Jangan menguji puluhan kombinasi variabel lalu hanya melaporkan yang "berhasil" signifikan — secara peluang, dari 20 uji acak, rata-rata 1 akan "signifikan" murni karena kebetulan (alpha=0.05).</li>
+      <li>Laporkan juga hasil yang tidak signifikan — bagian penting dari integritas analisis data.</li>
+    </ul>
+    <div class="note"><span class="lbl">Prinsip pegangan</span><p>Statistik bukan alat untuk "mencari pembenaran" atas kesimpulan yang sudah diinginkan sebelumnya, melainkan alat untuk menguji apakah kesimpulan itu benar-benar didukung data.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Latihan</h2>
+    <ol>
+      <li>Hitung mean, median, modus, varians, dan standar deviasi dari kolom <code>lama_belanja_menit</code>, lalu interpretasikan.</li>
+      <li>Buat histogram <code>skor_kepuasan</code> dan hitung skewness-nya — apakah distribusinya simetris?</li>
+      <li>Jalankan t-test untuk membandingkan <code>skor_kepuasan</code> antara cabang Tanjung Karang dan Kemiling. Signifikan atau tidak pada alpha=0.05?</li>
+      <li>Buat tabel kontingensi dan chi-square test antara <code>cabang</code> dan apakah <code>skor_kepuasan &ge; 8</code> (buat kolom kategorikal baru dulu).</li>
+      <li>Hitung CI 95% untuk rata-rata <code>lama_belanja_menit</code>, dan jelaskan artinya dalam satu kalimat untuk pemilik toko.</li>
+    </ol>
+
+    <footer>Dengan fondasi statistik ini, Pertemuan 8 (UTS) akan meminta mahasiswa menggabungkan EDA dan statistika dalam sebuah proyek analisis mandiri, sebelum masuk ke machine learning mulai Pertemuan 9. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

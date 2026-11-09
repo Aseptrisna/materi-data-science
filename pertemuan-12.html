@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unsupervised Learning: Clustering &amp; PCA</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Supervised vs Unsupervised Learning</a></li>
+      <li><a href="#s3">Dataset Contoh: Segmentasi Pelanggan</a></li>
+      <li><a href="#s4">Konsep K-Means Clustering</a></li>
+      <li><a href="#s5">K-Means dengan scikit-learn</a></li>
+      <li><a href="#s6">Elbow Method</a></li>
+      <li><a href="#s7">Silhouette Score</a></li>
+      <li><a href="#s8">Visualisasi Hasil Cluster</a></li>
+      <li><a href="#s9">Interpretasi &amp; Profiling Cluster</a></li>
+      <li><a href="#s10">Konsep Principal Component Analysis</a></li>
+      <li><a href="#s11">PCA dengan scikit-learn</a></li>
+      <li><a href="#s12">Explained Variance Ratio</a></li>
+      <li><a href="#s13">Pipeline: Scaling &rarr; PCA &rarr; KMeans</a></li>
+      <li><a href="#s14">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 12 &middot; Machine Learning</span>
+      <h1>Unsupervised Learning: Clustering &amp; PCA</h1>
+      <p class="sub">Tidak semua data punya label jawaban. Pertemuan ini membahas cara menemukan pola tersembunyi dari data tanpa label lewat K-Means clustering, menentukan jumlah cluster yang tepat, serta mereduksi dimensi data dengan PCA supaya bisa divisualisasikan.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Supervised vs Unsupervised Learning</a></li>
+        <li><a href="#s3">03. Dataset Contoh: Segmentasi Pelanggan</a></li>
+        <li><a href="#s4">04. Konsep K-Means Clustering</a></li>
+        <li><a href="#s5">05. K-Means dengan scikit-learn</a></li>
+        <li><a href="#s6">06. Elbow Method</a></li>
+        <li><a href="#s7">07. Silhouette Score</a></li>
+        <li><a href="#s8">08. Visualisasi Hasil Cluster</a></li>
+        <li><a href="#s9">09. Interpretasi &amp; Profiling Cluster</a></li>
+        <li><a href="#s10">10. Konsep Principal Component Analysis</a></li>
+        <li><a href="#s11">11. PCA dengan scikit-learn</a></li>
+        <li><a href="#s12">12. Explained Variance Ratio</a></li>
+        <li><a href="#s13">13. Pipeline: Scaling &rarr; PCA &rarr; KMeans</a></li>
+        <li><a href="#s14">14. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat membedakan supervised dan unsupervised learning, mengelompokkan data dengan K-Means, menentukan jumlah cluster optimal dengan Elbow Method dan Silhouette Score, serta mereduksi dimensi data berdimensi tinggi dengan PCA untuk keperluan visualisasi.</p>
+    <ul>
+      <li>Sudah familiar dengan <code>pandas</code>, <code>matplotlib</code>, dan alur dasar scikit-learn (<code>fit</code>, <code>transform</code>, <code>predict</code>) dari Pertemuan 9-11.</li>
+      <li>Memahami konsep scaling/normalisasi data numerik (akan direview singkat di bagian 05).</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Supervised vs Unsupervised Learning</h2>
+    <p>Sampai Pertemuan 11, seluruh model yang kita latih adalah <strong>supervised learning</strong> — data punya label jawaban (<code>y</code>) yang ingin diprediksi, misalnya "sakit/sehat" atau harga rumah. <strong>Unsupervised learning</strong> bekerja tanpa label sama sekali: model hanya diberi fitur (<code>X</code>) dan harus menemukan struktur atau pola tersembunyi sendiri.</p>
+    <table>
+      <tr><th>Aspek</th><th>Supervised</th><th>Unsupervised</th></tr>
+      <tr><td>Data</td><td>Punya label (<code>X</code>, <code>y</code>)</td><td>Hanya fitur (<code>X</code>)</td></tr>
+      <tr><td>Tujuan</td><td>Memprediksi label baru</td><td>Menemukan struktur/pola (cluster, dimensi penting)</td></tr>
+      <tr><td>Evaluasi</td><td>Accuracy, F1, RMSE (bandingkan dengan label aktual)</td><td>Silhouette score, inertia (tidak ada "jawaban benar" untuk dibandingkan)</td></tr>
+      <tr><td>Contoh algoritma</td><td>Logistic Regression, Decision Tree, KNN</td><td>K-Means, PCA, Hierarchical Clustering</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Contoh kasus nyata</span><p>Sebuah minimarket punya data transaksi pelanggan tapi tidak tahu "segmen pelanggan" apa saja yang ada. Tidak ada label siap pakai seperti "pelanggan hemat" atau "pelanggan loyal" — unsupervised learning membantu menemukan segmen tersebut dari pola belanja.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Dataset Contoh: Segmentasi Pelanggan</h2>
+    <p>Sepanjang pertemuan ini kita memakai dataset buatan sendiri: data pelanggan minimarket dengan dua fitur utama, <strong>frekuensi belanja per bulan</strong> dan <strong>rata-rata nilai belanja (dalam ribuan rupiah)</strong>, agar hasil cluster mudah divisualisasikan dalam 2D.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/12-clustering-pca.ipynb</span></div><pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs
+
+X, _ = make_blobs(
+    n_samples=300, centers=4, cluster_std=0.9, random_state=42
+)
+df = pd.DataFrame(X, columns=["frekuensi_belanja_z", "rata_nilai_belanja_z"])
+
+plt.scatter(df["frekuensi_belanja_z"], df["rata_nilai_belanja_z"], s=20)
+plt.xlabel("Frekuensi belanja per bulan (standardized)")
+plt.ylabel("Rata-rata nilai belanja (standardized)")
+plt.title("Sebaran Pelanggan Sebelum Clustering")
+plt.show()</code></pre></div>
+    <p>Data sudah dalam bentuk standardized (hasil scaling) agar fokus pembelajaran ada di algoritma clustering-nya. Pada bagian 13, kita akan memulai dari data mentah (sebelum scaling) untuk melihat pipeline lengkapnya.</p>
+
+    <h2 id="s4"><span class="badge">04</span>Konsep K-Means Clustering</h2>
+    <p><strong>K-Means</strong> mengelompokkan data menjadi <code>k</code> cluster berdasarkan kedekatan jarak ke pusat cluster (<em>centroid</em>). Algoritmanya bekerja secara iteratif:</p>
+    <ol>
+      <li><strong>Inisialisasi</strong> — pilih <code>k</code> titik sebagai centroid awal (scikit-learn memakai metode <code>k-means++</code> secara default, yang memilih centroid awal secara cerdas agar saling berjauhan, bukan benar-benar acak).</li>
+      <li><strong>Assignment</strong> — tiap titik data ditugaskan ke centroid terdekat (berdasarkan jarak Euclidean).</li>
+      <li><strong>Update</strong> — tiap centroid dipindahkan ke rata-rata posisi semua titik yang ditugaskan padanya.</li>
+      <li><strong>Ulangi</strong> langkah 2-3 sampai penugasan titik ke cluster tidak lagi berubah (konvergen) atau mencapai iterasi maksimum.</li>
+    </ol>
+    <div class="note"><span class="lbl">Kenapa harus menentukan <code>k</code> di awal?</span><p>Berbeda dari klasifikasi yang jumlah kelasnya sudah pasti dari label, K-Means mengharuskan kita menentukan jumlah cluster <code>k</code> sebelum menjalankan algoritma — inilah kenapa Elbow Method dan Silhouette Score (bagian 06-07) penting.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>K-Means dengan scikit-learn</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.cluster import KMeans
+
+kmeans = KMeans(n_clusters=4, init="k-means++", n_init=10, random_state=42)
+labels = kmeans.fit_predict(df[["frekuensi_belanja_z", "rata_nilai_belanja_z"]])
+
+df["cluster"] = labels
+print(df["cluster"].value_counts())
+print("Koordinat centroid:\n", kmeans.cluster_centers_)</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>df["cluster"]</code> berisi label integer dari <code>0</code> sampai <code>n_clusters - 1</code>, dan <code>kmeans.cluster_centers_</code> berbentuk array dengan baris sebanyak <code>n_clusters</code> dan kolom sebanyak jumlah fitur.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Elbow Method</h2>
+    <p><strong>Inertia</strong> (<code>kmeans.inertia_</code>) mengukur total jarak kuadrat tiap titik ke centroid terdekatnya — semakin kecil, semakin rapat cluster-nya. Inertia selalu menurun seiring <code>k</code> bertambah, tapi penurunannya melambat setelah titik tertentu. <strong>Elbow Method</strong> mencari titik "siku" di mana penurunan mulai melandai.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>inertias = []
+k_range = range(1, 11)
+
+for k in k_range:
+    km = KMeans(n_clusters=k, n_init=10, random_state=42)
+    km.fit(df[["frekuensi_belanja_z", "rata_nilai_belanja_z"]])
+    inertias.append(km.inertia_)
+
+plt.plot(k_range, inertias, marker="o")
+plt.xlabel("Jumlah cluster (k)")
+plt.ylabel("Inertia")
+plt.title("Elbow Method")
+plt.show()</code></pre></div>
+    <p>Pada dataset contoh ini (dibuat dari 4 pusat blob), grafik biasanya menunjukkan penurunan tajam sampai <code>k=4</code>, lalu melandai — menandakan <code>k=4</code> adalah pilihan yang wajar.</p>
+
+    <h2 id="s7"><span class="badge">07</span>Silhouette Score</h2>
+    <p>Elbow Method kadang ambigu karena "siku" tidak selalu jelas. <strong>Silhouette Score</strong> memberi ukuran kuantitatif per nilai <code>k</code>: seberapa mirip suatu titik dengan cluster-nya sendiri dibanding cluster terdekat lainnya. Rentang nilainya -1 sampai 1 — semakin mendekati 1, semakin baik pemisahan antar cluster.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.metrics import silhouette_score
+
+sil_scores = []
+k_range_sil = range(2, 11)  # minimal 2 cluster
+
+for k in k_range_sil:
+    km = KMeans(n_clusters=k, n_init=10, random_state=42)
+    labels_k = km.fit_predict(df[["frekuensi_belanja_z", "rata_nilai_belanja_z"]])
+    sil_scores.append(silhouette_score(df[["frekuensi_belanja_z", "rata_nilai_belanja_z"]], labels_k))
+
+plt.plot(k_range_sil, sil_scores, marker="o", color="green")
+plt.xlabel("Jumlah cluster (k)")
+plt.ylabel("Silhouette Score")
+plt.title("Silhouette Score per k")
+plt.show()
+
+best_k = k_range_sil[np.argmax(sil_scores)]
+print("k optimal menurut silhouette score:", best_k)</code></pre></div>
+    <div class="note"><span class="lbl">Elbow vs Silhouette</span><p>Gunakan keduanya sebagai pelengkap: Elbow Method cepat dihitung dan memberi gambaran kasar, Silhouette Score lebih presisi tapi lebih mahal secara komputasi untuk dataset besar.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Visualisasi Hasil Cluster</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>kmeans_final = KMeans(n_clusters=4, n_init=10, random_state=42)
+df["cluster"] = kmeans_final.fit_predict(df[["frekuensi_belanja_z", "rata_nilai_belanja_z"]])
+
+plt.scatter(
+    df["frekuensi_belanja_z"], df["rata_nilai_belanja_z"],
+    c=df["cluster"], cmap="viridis", s=25
+)
+plt.scatter(
+    kmeans_final.cluster_centers_[:, 0], kmeans_final.cluster_centers_[:, 1],
+    c="red", marker="X", s=200, label="Centroid"
+)
+plt.xlabel("Frekuensi belanja per bulan (standardized)")
+plt.ylabel("Rata-rata nilai belanja (standardized)")
+plt.title("Hasil K-Means Clustering (k=4)")
+plt.legend()
+plt.show()</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda hasil masuk akal</span><p>Titik-titik dengan warna sama mengelompok secara visual di sekitar centroid (ditandai "X" merah) masing-masing, tanpa cluster yang bercampur parah dengan cluster lain.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Interpretasi &amp; Profiling Cluster</h2>
+    <p>Angka cluster (0, 1, 2, 3) sendiri tidak bermakna bisnis — langkah selanjutnya adalah <strong>profiling</strong>: melihat karakteristik rata-rata tiap cluster untuk memberi nama/insight yang bisa ditindaklanjuti.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>profil = df.groupby("cluster")[["frekuensi_belanja_z", "rata_nilai_belanja_z"]].mean()
+print(profil)
+
+# Misal hasil interpretasi:
+# cluster 0 -> frekuensi rendah, nilai belanja rendah   -> "Pelanggan pasif"
+# cluster 1 -> frekuensi tinggi, nilai belanja tinggi    -> "Pelanggan loyal bernilai tinggi"
+# cluster 2 -> frekuensi tinggi, nilai belanja rendah    -> "Pelanggan sering tapi hemat"
+# cluster 3 -> frekuensi rendah, nilai belanja tinggi    -> "Pelanggan sesekali tapi besar"</code></pre></div>
+    <div class="note"><span class="lbl">Ini bagian paling penting bagi bisnis</span><p>Algoritma hanya memberi pengelompokan angka — nilai bisnisnya muncul saat tim data science menerjemahkan tiap cluster menjadi strategi konkret, misalnya promo berbeda untuk "Pelanggan pasif" vs "Pelanggan loyal".</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Konsep Principal Component Analysis</h2>
+    <p><strong>PCA (Principal Component Analysis)</strong> adalah teknik reduksi dimensi: mengubah banyak fitur yang saling berkorelasi menjadi sedikit fitur baru (<em>principal component</em>) yang tetap mempertahankan sebanyak mungkin variasi/informasi dari data asli. Komponen pertama menangkap arah dengan variasi terbesar, komponen kedua menangkap variasi terbesar berikutnya yang tegak lurus komponen pertama, dan seterusnya.</p>
+    <div class="note"><span class="lbl">Kenapa berguna untuk visualisasi?</span><p>Data dunia nyata sering punya puluhan fitur (misalnya 20 kolom survei pelanggan) — mustahil divisualisasikan langsung. PCA memampatkan informasi itu menjadi 2 komponen utama sehingga bisa diplot sebagai scatter plot 2D, sambil tetap mempertahankan pola/struktur terpenting data.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>PCA dengan scikit-learn</h2>
+    <p>Untuk mendemonstrasikan PCA secara bermakna, kita perlu dataset berdimensi lebih tinggi. Kita perluas dataset pelanggan menjadi 5 fitur numerik:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.datasets import make_blobs
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+X5, y_true = make_blobs(n_samples=300, centers=4, n_features=5, cluster_std=1.3, random_state=42)
+df5 = pd.DataFrame(X5, columns=[f"fitur_{i+1}" for i in range(5)])
+
+scaler = StandardScaler()
+X5_scaled = scaler.fit_transform(df5)
+
+pca = PCA(n_components=2, random_state=42)
+X5_pca = pca.fit_transform(X5_scaled)
+
+df5["pc1"] = X5_pca[:, 0]
+df5["pc2"] = X5_pca[:, 1]
+print(df5[["pc1", "pc2"]].head())</code></pre></div>
+    <div class="warn"><span class="lbl">Jangan lupa scaling sebelum PCA</span><p>PCA sensitif terhadap skala fitur — fitur dengan rentang nilai besar akan mendominasi komponen utama meskipun secara substansi tidak lebih penting. Selalu <code>StandardScaler</code> dulu sebelum <code>PCA</code>.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Explained Variance Ratio</h2>
+    <p><code>explained_variance_ratio_</code> menunjukkan proporsi variasi data asli yang berhasil dipertahankan oleh tiap komponen utama. Menjumlahkan beberapa komponen pertama memberi gambaran seberapa banyak informasi "hilang" akibat reduksi dimensi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>print("Explained variance ratio per komponen:", pca.explained_variance_ratio_)
+print("Total variasi dipertahankan (2 komponen):", pca.explained_variance_ratio_.sum())
+
+plt.scatter(df5["pc1"], df5["pc2"], c=y_true, cmap="viridis", s=25)
+plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]*100:.1f}% variasi)")
+plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]*100:.1f}% variasi)")
+plt.title("Visualisasi Data 5 Fitur dalam 2 Dimensi (PCA)")
+plt.show()</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda hasil masuk akal</span><p>Jika dua komponen pertama berhasil mempertahankan di atas 70-80% total variasi, scatter plot 2D-nya sudah cukup representatif untuk menggambarkan struktur data asli berdimensi lebih tinggi.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Pipeline: Scaling &rarr; PCA &rarr; KMeans</h2>
+    <p>Alur lengkap yang paling umum dipakai di industri menggabungkan ketiga teknik di atas secara berurutan: scaling menyamakan skala fitur, PCA mereduksi dimensi (sekaligus mengurangi noise), lalu KMeans mengelompokkan data pada ruang berdimensi rendah hasil PCA.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.pipeline import Pipeline
+
+pipeline = Pipeline([
+    ("scaler", StandardScaler()),
+    ("pca", PCA(n_components=2, random_state=42)),
+    ("kmeans", KMeans(n_clusters=4, n_init=10, random_state=42)),
+])
+
+df5["cluster"] = pipeline.fit_predict(df5[[f"fitur_{i+1}" for i in range(5)]])
+
+X_pca_result = pipeline.named_steps["pca"].transform(
+    pipeline.named_steps["scaler"].transform(df5[[f"fitur_{i+1}" for i in range(5)]])
+)
+
+plt.scatter(X_pca_result[:, 0], X_pca_result[:, 1], c=df5["cluster"], cmap="tab10", s=25)
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.title("Pipeline Scaling -> PCA -> KMeans")
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Keuntungan memakai Pipeline</span><p>Seluruh langkah (scaling, PCA, clustering) tergabung dalam satu objek yang konsisten diterapkan — mengurangi risiko lupa men-scale data baru dengan parameter yang sama. Pipeline scikit-learn akan dibahas lebih dalam di Pertemuan 13.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Latihan</h2>
+    <ol>
+      <li>Gunakan dataset pelanggan 2 fitur di bagian 03, lalu bandingkan hasil clustering dengan <code>k=2</code>, <code>k=4</code>, dan <code>k=6</code> secara visual. Jelaskan mana yang paling masuk akal berdasarkan Elbow Method dan Silhouette Score.</li>
+      <li>Buat profiling seperti bagian 09 untuk hasil clustering <code>k=4</code> pada bagian 03, lalu beri nama bisnis untuk tiap cluster.</li>
+      <li>Ubah dataset 5 fitur di bagian 11 menjadi memakai <code>n_components=3</code> pada PCA, lalu laporkan total <code>explained_variance_ratio_</code>-nya dan bandingkan dengan hasil <code>n_components=2</code>.</li>
+      <li>Jalankan pipeline di bagian 13 dengan jumlah cluster yang berbeda (misalnya 3 dan 5), lalu bandingkan silhouette score dari hasil clustering pada ruang PCA tersebut.</li>
+    </ol>
+
+    <footer>Setelah memahami clustering dan PCA sebagai teknik eksplorasi tanpa label, Pertemuan 13 masuk ke sisi rekayasa: feature engineering dan menyatukan seluruh proses preprocessing + model ke dalam satu Pipeline scikit-learn yang siap disimpan dan dipakai ulang. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

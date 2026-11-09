@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Time Series &amp; Forecasting Dasar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Apa itu Data Time Series</a></li>
+      <li><a href="#s3">Dataset Contoh: Penjualan Bulanan</a></li>
+      <li><a href="#s4">Komponen: Trend, Seasonality, Noise</a></li>
+      <li><a href="#s5">Visualisasi Time Series</a></li>
+      <li><a href="#s6">Resampling</a></li>
+      <li><a href="#s7">Moving Average sebagai Baseline</a></li>
+      <li><a href="#s8">Pengantar ARIMA</a></li>
+      <li><a href="#s9">Parameter p, d, q Secara Intuitif</a></li>
+      <li><a href="#s10">ARIMA dengan statsmodels</a></li>
+      <li><a href="#s11">Split Time Series untuk Evaluasi</a></li>
+      <li><a href="#s12">Metrik Evaluasi: MAE &amp; RMSE</a></li>
+      <li><a href="#s13">Membandingkan ARIMA vs Baseline</a></li>
+      <li><a href="#s14">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 14 &middot; Machine Learning</span>
+      <h1>Time Series &amp; Forecasting Dasar</h1>
+      <p class="sub">Data penjualan bulanan, suhu harian, atau harga saham punya satu aturan emas yang tidak boleh dilanggar: urutan waktu itu penting. Pertemuan ini membahas karakteristik data time series, baseline forecast dengan moving average, pengantar model ARIMA, dan cara mengevaluasi forecast dengan benar.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Apa itu Data Time Series</a></li>
+        <li><a href="#s3">03. Dataset Contoh: Penjualan Bulanan</a></li>
+        <li><a href="#s4">04. Komponen: Trend, Seasonality, Noise</a></li>
+        <li><a href="#s5">05. Visualisasi Time Series</a></li>
+        <li><a href="#s6">06. Resampling</a></li>
+        <li><a href="#s7">07. Moving Average sebagai Baseline</a></li>
+        <li><a href="#s8">08. Pengantar ARIMA</a></li>
+        <li><a href="#s9">09. Parameter p, d, q Secara Intuitif</a></li>
+        <li><a href="#s10">10. ARIMA dengan statsmodels</a></li>
+        <li><a href="#s11">11. Split Time Series untuk Evaluasi</a></li>
+        <li><a href="#s12">12. Metrik Evaluasi: MAE &amp; RMSE</a></li>
+        <li><a href="#s13">13. Membandingkan ARIMA vs Baseline</a></li>
+        <li><a href="#s14">14. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat menjelaskan apa yang membedakan data time series dari data tabular biasa, memvisualisasikan dan melakukan resampling data time series dengan pandas, membuat baseline forecast dengan moving average, memahami model ARIMA secara intuitif, dan mengevaluasi hasil forecast dengan cara yang benar (tanpa random split).</p>
+    <ul>
+      <li>Sudah familiar dengan <code>pandas</code> (indexing, <code>groupby</code>) dari pertemuan-pertemuan sebelumnya.</li>
+      <li>Library tambahan: <code>statsmodels</code> untuk model ARIMA (<code>pip install statsmodels</code> jika belum terpasang).</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Apa itu Data Time Series</h2>
+    <p><strong>Data time series</strong> adalah data yang diurutkan berdasarkan waktu, di mana <strong>urutan itu sendiri membawa informasi</strong> — nilai hari ini biasanya berkaitan dengan nilai kemarin, minggu lalu, atau bulan lalu. Ini berbeda fundamental dari data tabular biasa (seperti dataset churn di Pertemuan 13), yang baris-barisnya independen dan boleh diacak tanpa kehilangan makna.</p>
+    <table>
+      <tr><th>Aspek</th><th>Data tabular biasa</th><th>Data time series</th></tr>
+      <tr><td>Urutan baris</td><td>Tidak penting, boleh diacak</td><td>Sangat penting, tidak boleh diacak</td></tr>
+      <tr><td>Split train/test</td><td>Random split (Pertemuan 9-13)</td><td>Harus berurutan waktu (bagian 11)</td></tr>
+      <tr><td>Asumsi antar baris</td><td>Umumnya diasumsikan independen</td><td>Nilai berdekatan waktu cenderung berkorelasi (autokorelasi)</td></tr>
+      <tr><td>Contoh</td><td>Data pelanggan, data rumah</td><td>Penjualan bulanan, suhu harian, harga saham</td></tr>
+    </table>
+
+    <h2 id="s3"><span class="badge">03</span>Dataset Contoh: Penjualan Bulanan</h2>
+    <p>Sepanjang pertemuan ini kita memakai dataset buatan sendiri: penjualan bulanan sebuah toko selama 4 tahun (48 bulan), dengan pola trend naik dan seasonality tahunan (penjualan naik setiap akhir tahun), ditambah noise acak.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/14-time-series.ipynb</span></div><pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(42)
+tanggal = pd.date_range(start="2022-01-01", periods=48, freq="MS")  # MS = awal bulan
+
+bulan_ke = np.arange(48)
+trend = 500 + bulan_ke * 15                      # trend naik perlahan
+seasonality = 150 * np.sin(2 * np.pi * bulan_ke / 12 - np.pi / 2) + 150  # puncak di akhir tahun
+noise = rng.normal(0, 40, 48)
+
+penjualan = trend + seasonality + noise
+penjualan = np.round(penjualan).astype(int)
+
+df = pd.DataFrame({"tanggal": tanggal, "penjualan": penjualan})
+df = df.set_index("tanggal")
+df.head()</code></pre></div>
+
+    <h2 id="s4"><span class="badge">04</span>Komponen: Trend, Seasonality, Noise</h2>
+    <p>Hampir semua data time series bisa dipandang sebagai gabungan tiga komponen:</p>
+    <ul>
+      <li><strong>Trend</strong> — arah pergerakan jangka panjang (naik, turun, atau stabil), terlepas dari fluktuasi jangka pendek.</li>
+      <li><strong>Seasonality</strong> — pola berulang pada interval waktu tetap, misalnya penjualan selalu naik setiap bulan Desember tiap tahun.</li>
+      <li><strong>Noise</strong> — fluktuasi acak yang tersisa setelah trend dan seasonality dihilangkan, tidak bisa diprediksi oleh model apa pun.</li>
+    </ul>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from statsmodels.tsa.seasonal import seasonal_decompose
+
+hasil_dekomposisi = seasonal_decompose(df["penjualan"], model="additive", period=12)
+hasil_dekomposisi.plot()
+plt.tight_layout()
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Membaca hasil dekomposisi</span><p><code>seasonal_decompose</code> memecah <code>df["penjualan"]</code> menjadi empat panel: data asli (<code>observed</code>), <code>trend</code>, <code>seasonal</code>, dan <code>resid</code> (noise/residual) — berguna untuk memastikan pola trend dan seasonality yang kita duga memang benar-benar ada di data.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Visualisasi Time Series</h2>
+    <p>Karena indeks DataFrame sudah berupa <code>tanggal</code> (hasil <code>set_index</code>), pandas bisa langsung memplot data dengan sumbu-x berupa waktu menggunakan <code>.plot()</code>.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df["penjualan"].plot(figsize=(10, 4), marker="o", title="Penjualan Bulanan 2022-2025")
+plt.xlabel("Tanggal")
+plt.ylabel("Jumlah Penjualan (unit)")
+plt.grid(alpha=0.3)
+plt.show()</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda hasil masuk akal</span><p>Grafik menunjukkan garis yang secara umum naik dari kiri ke kanan (trend), dengan puncak berulang kira-kira setiap 12 titik (seasonality tahunan), dan sedikit fluktuasi tidak beraturan di sekitar pola tersebut (noise).</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Resampling</h2>
+    <p><strong>Resampling</strong> mengubah frekuensi data time series — misalnya mengagregasi data harian menjadi bulanan, atau bulanan menjadi kuartalan/tahunan. Berguna untuk melihat pola pada skala waktu yang berbeda.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code># Agregasi ke kuartalan (3 bulan), menjumlahkan total penjualan per kuartal
+penjualan_kuartalan = df["penjualan"].resample("QE").sum()
+print(penjualan_kuartalan)
+
+# Agregasi ke tahunan, melihat rata-rata penjualan per tahun
+penjualan_tahunan = df["penjualan"].resample("YE").mean()
+print(penjualan_tahunan)</code></pre></div>
+    <div class="note"><span class="lbl">Alias frekuensi yang sering dipakai</span><p><code>"D"</code> harian, <code>"W"</code> mingguan, <code>"ME"</code> akhir bulan, <code>"QE"</code> akhir kuartal, <code>"YE"</code> akhir tahun. Pilih fungsi agregasi (<code>.sum()</code>, <code>.mean()</code>, <code>.max()</code>, dsb.) sesuai makna datanya — total penjualan biasanya dijumlahkan, suhu biasanya dirata-ratakan.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Moving Average sebagai Baseline</h2>
+    <p><strong>Moving average</strong> (rata-rata bergerak) menghitung rata-rata beberapa titik waktu terakhir sebagai prediksi titik berikutnya. Sederhana, tapi sering jadi baseline yang cukup kuat untuk data tanpa pola musiman tajam, dan wajib dijadikan pembanding sebelum memakai model yang lebih kompleks seperti ARIMA.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>df["moving_avg_3"] = df["penjualan"].rolling(window=3).mean()
+
+df[["penjualan", "moving_avg_3"]].plot(figsize=(10, 4), marker="o")
+plt.title("Penjualan Aktual vs Moving Average (window=3 bulan)")
+plt.xlabel("Tanggal")
+plt.ylabel("Jumlah Penjualan (unit)")
+plt.show()</code></pre></div>
+    <div class="warn"><span class="lbl">Moving average sebagai forecast punya keterbatasan</span><p>Forecast "bulan depan = rata-rata 3 bulan terakhir" cenderung tertinggal (<em>lag</em>) dari trend naik yang kuat, dan tidak bisa menangkap pola seasonality yang berulang tahunan. Inilah yang coba diatasi oleh model seperti ARIMA.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Pengantar ARIMA</h2>
+    <p><strong>ARIMA</strong> (AutoRegressive Integrated Moving Average) adalah salah satu model forecasting klasik yang paling umum dipakai untuk time series univariat (satu variabel). ARIMA menggabungkan tiga komponen yang dikontrol lewat tiga parameter: <code>p</code>, <code>d</code>, <code>q</code>.</p>
+    <div class="note"><span class="lbl">Kenapa harus "Integrated"?</span><p>Banyak model statistik (termasuk bagian AR dan MA di ARIMA) bekerja lebih baik pada data yang <em>stasioner</em> — rata-rata dan variansnya stabil sepanjang waktu, tidak punya trend naik/turun yang kuat. Komponen "Integrated" (differencing) mengubah data bertrend menjadi stasioner sebelum dimodelkan.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Parameter p, d, q Secara Intuitif</h2>
+    <table>
+      <tr><th>Parameter</th><th>Nama</th><th>Intuisi sederhana</th></tr>
+      <tr><td><code>p</code></td><td>AutoRegressive (AR) order</td><td>Berapa banyak nilai masa lalu (lag) yang dipakai langsung untuk memprediksi nilai sekarang. <code>p=2</code> berarti nilai bulan ini dipengaruhi oleh nilai 1 dan 2 bulan sebelumnya.</td></tr>
+      <tr><td><code>d</code></td><td>Degree of differencing</td><td>Berapa kali data perlu "diselisihkan" (nilai sekarang dikurangi nilai sebelumnya) supaya trend-nya hilang dan data menjadi stasioner. <code>d=1</code> cukup untuk trend linear sederhana.</td></tr>
+      <tr><td><code>q</code></td><td>Moving Average (MA) order</td><td>Berapa banyak error prediksi masa lalu yang dipakai untuk mengoreksi prediksi sekarang — menangkap pola pada "keterkejutan" (shock) sebelumnya, bukan nilai mentahnya.</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Tidak perlu menghitung manual</span><p>Pada praktiknya, nilai <code>p</code>, <code>d</code>, <code>q</code> yang baik biasanya dicari lewat eksperimen (coba beberapa kombinasi kecil seperti 0, 1, 2) dan dibandingkan performanya di test set — bukan dihitung dari rumus matematis yang rumit secara manual.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>ARIMA dengan statsmodels</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from statsmodels.tsa.arima.model import ARIMA
+
+model_arima = ARIMA(df["penjualan"], order=(2, 1, 1))  # p=2, d=1, q=1
+hasil_arima = model_arima.fit()
+
+print(hasil_arima.summary())
+
+forecast_3_bulan = hasil_arima.forecast(steps=3)
+print("Forecast 3 bulan ke depan:\n", forecast_3_bulan)</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>hasil_arima.summary()</code> menampilkan tabel koefisien model tanpa error, dan <code>forecast_3_bulan</code> berisi 3 nilai prediksi dengan indeks tanggal yang melanjutkan tanggal terakhir di <code>df</code>.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>Split Time Series untuk Evaluasi</h2>
+    <p>Berbeda dari <code>train_test_split</code> dengan <code>shuffle</code> acak pada data tabular, time series <strong>harus</strong> dipisah secara berurutan waktu: data lebih awal untuk training, data paling akhir untuk testing. Mengacak split time series akan membuat model "mengintip masa depan" saat training (data leakage), menghasilkan evaluasi yang menyesatkan.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>n_test = 6  # 6 bulan terakhir untuk test
+train = df["penjualan"].iloc[:-n_test]
+test = df["penjualan"].iloc[-n_test:]
+
+print("Rentang train:", train.index.min(), "sampai", train.index.max())
+print("Rentang test :", test.index.min(), "sampai", test.index.max())</code></pre></div>
+    <div class="warn"><span class="lbl">Jangan pernah pakai <code>train_test_split(..., shuffle=True)</code> di sini</span><p>Jika <code>shuffle=True</code> dipakai pada data time series, model bisa saja dilatih memakai data bulan Desember 2025 untuk "memprediksi" bulan Juni 2024 — secara teknis berjalan tanpa error, tapi hasil evaluasinya sama sekali tidak mencerminkan kemampuan forecasting yang sebenarnya.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Metrik Evaluasi: MAE &amp; RMSE</h2>
+    <p><strong>MAE</strong> (Mean Absolute Error) adalah rata-rata selisih absolut antara nilai aktual dan prediksi, dalam satuan asli data — mudah diinterpretasi. <strong>RMSE</strong> (Root Mean Squared Error) mengakar-kuadratkan rata-rata selisih kuadrat, sehingga lebih menghukum kesalahan besar (outlier) dibanding MAE.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+model_arima_train = ARIMA(train, order=(2, 1, 1)).fit()
+pred_arima = model_arima_train.forecast(steps=n_test)
+
+mae_arima = mean_absolute_error(test, pred_arima)
+rmse_arima = np.sqrt(mean_squared_error(test, pred_arima))
+
+print(f"ARIMA  - MAE: {mae_arima:.2f}, RMSE: {rmse_arima:.2f}")</code></pre></div>
+
+    <h2 id="s13"><span class="badge">13</span>Membandingkan ARIMA vs Baseline</h2>
+    <p>Model ARIMA baru dianggap berguna jika performanya lebih baik daripada baseline sederhana seperti moving average. Mari bandingkan keduanya pada 6 bulan test yang sama.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code># Baseline: forecast = rata-rata 3 bulan terakhir sebelum test, diulang untuk semua titik test
+baseline_value = train.iloc[-3:].mean()
+pred_baseline = pd.Series([baseline_value] * n_test, index=test.index)
+
+mae_baseline = mean_absolute_error(test, pred_baseline)
+rmse_baseline = np.sqrt(mean_squared_error(test, pred_baseline))
+
+print(f"Baseline (moving avg) - MAE: {mae_baseline:.2f}, RMSE: {rmse_baseline:.2f}")
+print(f"ARIMA                 - MAE: {mae_arima:.2f}, RMSE: {rmse_arima:.2f}")
+
+plt.plot(train.index, train, label="Train")
+plt.plot(test.index, test, label="Test (aktual)", marker="o")
+plt.plot(test.index, pred_arima, label="Forecast ARIMA", marker="o")
+plt.plot(test.index, pred_baseline, label="Forecast Baseline", linestyle="--")
+plt.legend()
+plt.title("ARIMA vs Baseline Moving Average")
+plt.show()</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda model ARIMA layak dipakai</span><p>Jika <code>mae_arima</code> dan <code>rmse_arima</code> lebih kecil daripada <code>mae_baseline</code> dan <code>rmse_baseline</code>, ARIMA berhasil menangkap pola (trend/seasonality) yang tidak tertangkap baseline sederhana — baru pada titik ini kompleksitas tambahan ARIMA terbukti sepadan.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Latihan</h2>
+    <ol>
+      <li>Menggunakan dataset penjualan bulanan di bagian 03, ubah <code>n_test</code> menjadi 12 bulan (1 tahun penuh), latih ulang ARIMA, dan bandingkan MAE/RMSE-nya dengan hasil <code>n_test=6</code>.</li>
+      <li>Coba tiga kombinasi <code>order</code> berbeda untuk ARIMA, misalnya <code>(1,1,0)</code>, <code>(2,1,1)</code>, dan <code>(1,1,1)</code>, lalu bandingkan MAE pada test set yang sama untuk menentukan kombinasi terbaik.</li>
+      <li>Buat baseline kedua yang disebut <em>naive forecast</em> (prediksi bulan depan = nilai bulan terakhir yang diketahui, tanpa rata-rata), lalu bandingkan MAE/RMSE-nya dengan baseline moving average dan ARIMA.</li>
+      <li>Jalankan <code>seasonal_decompose</code> pada data penjualan dengan <code>period=6</code> dan <code>period=12</code>, lalu jelaskan mana yang lebih masuk akal berdasarkan cara data ini dibuat di bagian 03.</li>
+    </ol>
+
+    <footer>Dengan kemampuan mengevaluasi model (Pertemuan 11), mengelompokkan data tanpa label (Pertemuan 12), menyusun pipeline fitur yang rapi (Pertemuan 13), dan memahami forecasting time series, mahasiswa sudah memiliki perangkat machine learning inti untuk masuk ke Pertemuan 15: men-deploy model menjadi layanan yang bisa diakses pengguna lain. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

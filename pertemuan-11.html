@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluasi Model &amp; Validasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Setup &amp; Dataset Contoh</a></li>
+      <li><a href="#s3">Kenapa Accuracy Saja Tidak Cukup</a></li>
+      <li><a href="#s4">Confusion Matrix: TP, TN, FP, FN</a></li>
+      <li><a href="#s5">Confusion Matrix dengan scikit-learn</a></li>
+      <li><a href="#s6">Precision, Recall, F1-Score</a></li>
+      <li><a href="#s7">classification_report</a></li>
+      <li><a href="#s8">Kapan Precision, Kapan Recall</a></li>
+      <li><a href="#s9">ROC Curve &amp; AUC</a></li>
+      <li><a href="#s10">Cross-Validation K-Fold</a></li>
+      <li><a href="#s11">Kenapa CV Lebih Reliable</a></li>
+      <li><a href="#s12">Overfitting vs Underfitting</a></li>
+      <li><a href="#s13">Bias-Variance Tradeoff</a></li>
+      <li><a href="#s14">Hyperparameter Tuning: GridSearchCV</a></li>
+      <li><a href="#s15">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 11 &middot; Machine Learning</span>
+      <h1>Evaluasi Model &amp; Validasi</h1>
+      <p class="sub">Model dengan accuracy tinggi belum tentu model yang baik. Pertemuan ini membahas cara mengevaluasi model klasifikasi secara jujur: confusion matrix, precision/recall/F1, ROC-AUC, cross-validation, serta memahami overfitting, underfitting, dan bias-variance tradeoff sebelum menyetel hyperparameter.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Setup &amp; Dataset Contoh</a></li>
+        <li><a href="#s3">03. Kenapa Accuracy Saja Tidak Cukup</a></li>
+        <li><a href="#s4">04. Confusion Matrix: TP/TN/FP/FN</a></li>
+        <li><a href="#s5">05. Confusion Matrix dengan scikit-learn</a></li>
+        <li><a href="#s6">06. Precision, Recall, F1-Score</a></li>
+        <li><a href="#s7">07. classification_report</a></li>
+        <li><a href="#s8">08. Kapan Precision, Kapan Recall</a></li>
+        <li><a href="#s9">09. ROC Curve &amp; AUC</a></li>
+        <li><a href="#s10">10. Cross-Validation K-Fold</a></li>
+        <li><a href="#s11">11. Kenapa CV Lebih Reliable</a></li>
+        <li><a href="#s12">12. Overfitting vs Underfitting</a></li>
+        <li><a href="#s13">13. Bias-Variance Tradeoff</a></li>
+        <li><a href="#s14">14. Hyperparameter Tuning: GridSearchCV</a></li>
+        <li><a href="#s15">15. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat menjelaskan kenapa accuracy bisa menyesatkan, menghitung dan membaca confusion matrix beserta precision/recall/F1, mengevaluasi klasifikasi biner dengan ROC-AUC, menerapkan k-fold cross-validation, serta membedakan overfitting dan underfitting untuk menuntun proses tuning hyperparameter.</p>
+    <ul>
+      <li>Sudah familiar dengan alur <code>train_test_split</code>, <code>fit</code>, dan <code>predict</code> scikit-learn (Pertemuan 9-10).</li>
+      <li>Sudah pernah melatih minimal satu model klasifikasi (logistic regression, decision tree, atau KNN).</li>
+      <li>Library: <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, <code>scikit-learn</code> sudah terpasang di environment <code>datasci</code>.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Setup &amp; Dataset Contoh</h2>
+    <p>Sepanjang pertemuan ini kita memakai satu dataset konsisten: simulasi <strong>deteksi penyakit</strong> dari 4 fitur klinis (sudah dinormalisasi), dengan label <code>1</code> = sakit dan <code>0</code> = sehat. Kasus ini sengaja dibuat <strong>imbalanced</strong> — hanya sekitar 5% pasien yang benar-benar sakit, mirip kondisi nyata screening penyakit langka.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/11-evaluasi-model.ipynb</span></div><pre><code>import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+X, y = make_classification(
+    n_samples=1000, n_features=4, n_informative=3, n_redundant=0,
+    weights=[0.95, 0.05], flip_y=0.01, random_state=42
+)
+df = pd.DataFrame(X, columns=["usia_z", "tekanan_darah_z", "kadar_gula_z", "bmi_z"])
+df["sakit"] = y
+
+print(df["sakit"].value_counts(normalize=True))
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=42
+)
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa <code>stratify=y</code>?</span><p>Pada dataset imbalanced, <code>stratify=y</code> memastikan proporsi kelas 0/1 di <code>train</code> dan <code>test</code> tetap sama dengan proporsi di data asli — tanpa ini, bisa saja <code>test set</code> kebetulan tidak memuat satu pun kasus positif.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Kenapa Accuracy Saja Tidak Cukup</h2>
+    <p>Accuracy mengukur proporsi prediksi yang benar dari seluruh data. Terlihat masuk akal, tapi pada data imbalanced seperti dataset kita (95% sehat, 5% sakit), model yang <strong>selalu menebak "sehat"</strong> tanpa belajar apa pun sudah mendapat accuracy tinggi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.dummy import DummyClassifier
+from sklearn.metrics import accuracy_score
+
+dummy = DummyClassifier(strategy="most_frequent")
+dummy.fit(X_train, y_train)
+y_pred_dummy = dummy.predict(X_test)
+
+print("Accuracy model 'malas':", accuracy_score(y_test, y_pred_dummy))
+# Accuracy model 'malas': 0.952 (!!)</code></pre></div>
+    <div class="warn"><span class="lbl">Model yang tidak berguna, tapi accuracy 95%</span><p><code>DummyClassifier</code> di atas tidak pernah mendeteksi satu pun pasien sakit — padahal itulah tujuan utama model ini dibuat. Accuracy 95% menyembunyikan kegagalan total pada kelas minoritas, yang justru paling penting.</p></div>
+    <p>Karena itu, untuk data imbalanced (dan klasifikasi pada umumnya), kita butuh metrik yang melihat performa <strong>per kelas</strong>, bukan hanya rata-rata keseluruhan.</p>
+
+    <h2 id="s4"><span class="badge">04</span>Confusion Matrix: TP, TN, FP, FN</h2>
+    <p><strong>Confusion matrix</strong> membandingkan label aktual dengan label prediksi dalam 4 kategori, untuk klasifikasi biner (anggap "sakit" sebagai kelas positif):</p>
+    <table>
+      <tr><th>Istilah</th><th>Arti</th><th>Contoh pada kasus deteksi penyakit</th></tr>
+      <tr><td><strong>TP</strong> (True Positive)</td><td>Diprediksi positif, aktual positif</td><td>Pasien sakit, model benar bilang sakit</td></tr>
+      <tr><td><strong>TN</strong> (True Negative)</td><td>Diprediksi negatif, aktual negatif</td><td>Pasien sehat, model benar bilang sehat</td></tr>
+      <tr><td><strong>FP</strong> (False Positive)</td><td>Diprediksi positif, aktual negatif</td><td>Pasien sehat, model salah bilang sakit ("false alarm")</td></tr>
+      <tr><td><strong>FN</strong> (False Negative)</td><td>Diprediksi negatif, aktual positif</td><td>Pasien sakit, model salah bilang sehat ("terlewat")</td></tr>
+    </table>
+    <div class="note"><span class="lbl">FN sering paling berbahaya</span><p>Pada kasus medis, <strong>False Negative</strong> (pasien sakit dianggap sehat) biasanya jauh lebih berisiko daripada False Positive, karena penyakitnya tidak tertangani. Ini jadi alasan kenapa metrik seperti recall penting di bagian 08.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Confusion Matrix dengan scikit-learn</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+# [[233   4]
+#  [  6   7]]
+
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Sehat", "Sakit"])
+disp.plot(cmap="Blues")
+plt.title("Confusion Matrix - Deteksi Penyakit")
+plt.show()</code></pre></div>
+    <p>Susunan baris adalah label aktual, kolom adalah label prediksi. Baris pertama (aktual sehat) dan kolom pertama (prediksi sehat) berpotongan di posisi TN; baris kedua kolom kedua berpotongan di posisi TP.</p>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>cm.ravel()</code> dapat dipecah menjadi <code>tn, fp, fn, tp = cm.ravel()</code> dan jumlah keempatnya sama dengan total baris di <code>y_test</code>.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Precision, Recall, F1-Score</h2>
+    <p>Dari confusion matrix, tiga metrik turunan paling penting untuk kelas positif:</p>
+    <ul>
+      <li><strong>Precision</strong> = TP / (TP + FP) — dari semua yang diprediksi positif, berapa persen yang benar-benar positif. Tinggi berarti sedikit <em>false alarm</em>.</li>
+      <li><strong>Recall</strong> (sensitivity) = TP / (TP + FN) — dari semua yang aktual positif, berapa persen yang berhasil ditangkap model. Tinggi berarti sedikit kasus positif yang terlewat.</li>
+      <li><strong>F1-score</strong> = 2 &times; (precision &times; recall) / (precision + recall) — rata-rata harmonik precision dan recall, berguna saat ingin menyeimbangkan keduanya dalam satu angka.</li>
+    </ul>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>tn, fp, fn, tp = cm.ravel()
+
+precision = tp / (tp + fp)
+recall = tp / (tp + fn)
+f1 = 2 * (precision * recall) / (precision + recall)
+
+print(f"Precision: {precision:.2f}")
+print(f"Recall:    {recall:.2f}")
+print(f"F1-score:  {f1:.2f}")</code></pre></div>
+
+    <h2 id="s7"><span class="badge">07</span>classification_report</h2>
+    <p>Daripada menghitung manual, scikit-learn menyediakan <code>classification_report</code> yang langsung merangkum precision, recall, F1-score, dan <code>support</code> (jumlah sampel) untuk tiap kelas.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.metrics import classification_report
+
+print(classification_report(y_test, y_pred, target_names=["Sehat", "Sakit"]))
+#               precision    recall  f1-score   support
+#
+#        Sehat       0.97      0.98      0.98       237
+#        Sakit       0.64      0.54      0.58        13
+#
+#     accuracy                           0.96       250
+#    macro avg       0.80      0.76      0.78       250
+# weighted avg       0.96      0.96      0.96       250</code></pre></div>
+    <p>Perhatikan betapa berbedanya performa kelas <code>Sakit</code> (recall 0.54) dibanding <code>accuracy</code> keseluruhan (0.96) — ini bukti nyata kenapa membaca <code>classification_report</code> per kelas jauh lebih informatif.</p>
+
+    <h2 id="s8"><span class="badge">08</span>Kapan Precision, Kapan Recall</h2>
+    <p>Metrik mana yang "lebih penting" tergantung konteks bisnis — mana yang lebih mahal: false positive atau false negative?</p>
+    <table>
+      <tr><th>Kasus</th><th>Metrik prioritas</th><th>Alasan</th></tr>
+      <tr><td>Deteksi penyakit serius</td><td><strong>Recall</strong></td><td>Lebih baik banyak false alarm (pasien sehat disuruh cek ulang) daripada melewatkan pasien yang benar sakit (FN berbahaya).</td></tr>
+      <tr><td>Deteksi email spam</td><td><strong>Precision</strong></td><td>Email penting yang salah ditandai spam (FP) merugikan pengguna; lebih bisa ditoleransi jika sedikit spam lolos (FN).</td></tr>
+      <tr><td>Rekomendasi produk</td><td>F1 / seimbang</td><td>Baik FP (rekomendasi tidak relevan) maupun FN (produk relevan tidak muncul) sama-sama merugikan pengalaman pengguna.</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Aturan praktis</span><p>Tanyakan: "apa akibat jika model salah memprediksi positif?" dan "apa akibat jika model salah memprediksi negatif?" Metrik yang mengukur akibat paling mahal itulah yang harus diprioritaskan saat memilih model atau threshold.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>ROC Curve &amp; AUC</h2>
+    <p><strong>ROC curve</strong> (Receiver Operating Characteristic) memplot <em>True Positive Rate</em> (recall) terhadap <em>False Positive Rate</em> pada berbagai ambang batas (threshold) klasifikasi, bukan hanya threshold default 0.5. <strong>AUC</strong> (Area Under Curve) merangkum kurva ini menjadi satu angka 0-1: 0.5 berarti model menebak acak, 1.0 berarti model sempurna memisahkan kedua kelas.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.metrics import roc_auc_score, roc_curve
+
+y_proba = model.predict_proba(X_test)[:, 1]
+auc = roc_auc_score(y_test, y_proba)
+fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+
+print("AUC:", round(auc, 3))
+
+plt.plot(fpr, tpr, label=f"Logistic Regression (AUC = {auc:.2f})")
+plt.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Tebakan acak")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve - Deteksi Penyakit")
+plt.legend()
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa pakai <code>predict_proba</code>, bukan <code>predict</code>?</span><p>ROC-AUC butuh skor probabilitas (seberapa yakin model), bukan label final 0/1, karena kurva dibangun dengan menggeser threshold keputusan dari 0 sampai 1.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Cross-Validation K-Fold</h2>
+    <p>Satu kali <code>train_test_split</code> bisa "beruntung" atau "sial" tergantung pembagian data. <strong>K-Fold Cross-Validation</strong> membagi data menjadi <code>k</code> bagian (fold), melatih model <code>k</code> kali — tiap kali dengan 1 fold berbeda sebagai test set dan sisanya sebagai train set — lalu merata-ratakan hasilnya.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.model_selection import cross_val_score, KFold
+
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(LogisticRegression(), X, y, cv=kf, scoring="f1")
+
+print("F1 tiap fold:", np.round(scores, 3))
+print("Rata-rata F1:", round(scores.mean(), 3))
+print("Standar deviasi:", round(scores.std(), 3))</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda hasil masuk akal</span><p>Lima skor F1 pada <code>scores</code> relatif dekat satu sama lain (standar deviasi kecil) menandakan performa model stabil di berbagai pembagian data, bukan kebetulan dari satu split tertentu.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>Kenapa Cross-Validation Lebih Reliable</h2>
+    <ul>
+      <li><strong>Mengurangi varians estimasi performa</strong> — rata-rata dari 5-10 percobaan jauh lebih stabil daripada satu angka dari satu split.</li>
+      <li><strong>Semua data pernah jadi test set</strong> — tiap baris data dipakai untuk validasi tepat sekali, sehingga tidak ada "data beruntung" yang kebetulan mudah diprediksi.</li>
+      <li><strong>Mendeteksi model yang tidak stabil</strong> — jika skor antar fold sangat bervariasi, itu pertanda model sensitif terhadap pembagian data (mungkin data terlalu sedikit atau model terlalu kompleks).</li>
+    </ul>
+    <div class="warn"><span class="lbl">Cross-validation bukan pengganti test set akhir</span><p>Cross-validation umumnya dipakai saat eksperimen &amp; tuning (bagian 14). Tetap sisihkan satu <em>held-out test set</em> yang baru disentuh di akhir, untuk evaluasi final yang benar-benar independen dari proses tuning.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Overfitting vs Underfitting</h2>
+    <p><strong>Underfitting</strong> terjadi saat model terlalu sederhana untuk menangkap pola data — error tinggi baik di train maupun test. <strong>Overfitting</strong> terjadi saat model terlalu kompleks, menghafal noise di data train — error rendah di train tapi tinggi di test. Ilustrasi berikut memvariasikan kompleksitas <code>DecisionTreeClassifier</code> lewat <code>max_depth</code>:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+depths = range(1, 15)
+train_scores, test_scores = [], []
+
+for d in depths:
+    tree = DecisionTreeClassifier(max_depth=d, random_state=42)
+    tree.fit(X_train, y_train)
+    train_scores.append(accuracy_score(y_train, tree.predict(X_train)))
+    test_scores.append(accuracy_score(y_test, tree.predict(X_test)))
+
+plt.plot(depths, train_scores, marker="o", label="Akurasi Train")
+plt.plot(depths, test_scores, marker="o", label="Akurasi Test")
+plt.xlabel("max_depth (kompleksitas model)")
+plt.ylabel("Akurasi")
+plt.title("Overfitting vs Underfitting")
+plt.legend()
+plt.show()</code></pre></div>
+    <p>Pola yang biasanya muncul: di <code>max_depth</code> kecil, kedua kurva sama-sama rendah (underfitting). Seiring <code>max_depth</code> membesar, akurasi train terus naik mendekati 1.0, sementara akurasi test mulai stagnan lalu menurun — titik di mana kurva test mulai turun itulah awal overfitting.</p>
+
+    <h2 id="s13"><span class="badge">13</span>Bias-Variance Tradeoff</h2>
+    <p>Secara konseptual, error model bisa dipecah menjadi tiga sumber: <strong>bias</strong> (kesalahan karena model terlalu sederhana/asumsi terlalu kaku), <strong>variance</strong> (kesalahan karena model terlalu sensitif terhadap fluktuasi data latih), dan <strong>noise</strong> (ketidakpastian bawaan data yang tidak bisa dihilangkan model apa pun).</p>
+    <table>
+      <tr><th>Kondisi</th><th>Bias</th><th>Variance</th><th>Gejala</th></tr>
+      <tr><td>Underfitting</td><td>Tinggi</td><td>Rendah</td><td>Error train &amp; test sama-sama tinggi</td></tr>
+      <tr><td>Pas (good fit)</td><td>Sedang</td><td>Sedang</td><td>Error train &amp; test rendah dan berdekatan</td></tr>
+      <tr><td>Overfitting</td><td>Rendah</td><td>Tinggi</td><td>Error train sangat rendah, error test jauh lebih tinggi</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Kenapa disebut "tradeoff"?</span><p>Menurunkan bias (menambah kompleksitas model) biasanya menaikkan variance, dan sebaliknya. Tujuan tuning model bukan menghilangkan keduanya, tapi mencari titik keseimbangan yang meminimalkan total error pada data baru.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Hyperparameter Tuning: GridSearchCV</h2>
+    <p>Daripada mencoba kombinasi hyperparameter satu-satu secara manual, <code>GridSearchCV</code> mencoba semua kombinasi pada grid yang ditentukan, mengevaluasi tiap kombinasi dengan cross-validation, lalu memilih kombinasi dengan skor terbaik.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">python</span></div><pre><code>from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+param_grid = {
+    "n_estimators": [50, 100, 200],
+    "max_depth": [3, 5, 10, None],
+}
+
+grid = GridSearchCV(
+    RandomForestClassifier(random_state=42, class_weight="balanced"),
+    param_grid,
+    cv=5,
+    scoring="f1",
+    n_jobs=-1,
+)
+grid.fit(X_train, y_train)
+
+print("Parameter terbaik:", grid.best_params_)
+print("F1 terbaik (rata-rata CV):", round(grid.best_score_, 3))
+
+best_model = grid.best_estimator_
+print(classification_report(y_test, best_model.predict(X_test), target_names=["Sehat", "Sakit"]))</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda proses berjalan benar</span><p><code>grid.best_params_</code> mengembalikan satu kombinasi parameter spesifik dari <code>param_grid</code>, dan <code>grid.best_score_</code> adalah rata-rata skor cross-validation untuk kombinasi tersebut — bukan skor dari test set.</p></div>
+    <div class="warn"><span class="lbl">GridSearchCV lambat untuk grid besar</span><p>Jumlah kombinasi tumbuh cepat (3 &times; 4 = 12 kombinasi &times; 5 fold = 60 pelatihan model). Untuk grid yang sangat besar, pertimbangkan <code>RandomizedSearchCV</code> yang mencoba sampel kombinasi acak, bukan semuanya.</p></div>
+
+    <h2 id="s15"><span class="badge">15</span>Latihan</h2>
+    <ol>
+      <li>Ulangi alur dataset deteksi penyakit di atas, lalu bandingkan <code>classification_report</code> dari <code>LogisticRegression</code>, <code>DecisionTreeClassifier</code>, dan <code>KNeighborsClassifier</code> (dari Pertemuan 10) pada test set yang sama.</li>
+      <li>Hitung ROC-AUC untuk ketiga model di atas, lalu plot ketiga ROC curve dalam satu grafik untuk membandingkan secara visual.</li>
+      <li>Jalankan <code>cross_val_score</code> dengan <code>cv=10</code> untuk salah satu model, lalu bandingkan rata-rata dan standar deviasinya dengan hasil <code>cv=5</code>.</li>
+      <li>Gunakan <code>GridSearchCV</code> untuk menyetel <code>n_neighbors</code> pada <code>KNeighborsClassifier</code> (coba nilai 1 sampai 20), lalu identifikasi pada <code>n_neighbors</code> berapa model mulai overfitting.</li>
+    </ol>
+
+    <footer>Setelah memahami cara mengevaluasi model secara jujur, Pertemuan 12 beralih ke <em>unsupervised learning</em> — belajar dari data tanpa label lewat clustering (K-Means) dan reduksi dimensi (PCA). &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

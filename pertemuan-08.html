@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UTS: Proyek Analisis Data Eksploratif Mandiri</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan UTS</a></li>
+      <li><a href="#s2">Ketentuan Dataset</a></li>
+      <li><a href="#s3">Deliverable Wajib</a></li>
+      <li><a href="#s4">Struktur Notebook</a></li>
+      <li><a href="#s5">Rubrik Penilaian</a></li>
+      <li><a href="#s6">Format Pengumpulan &amp; Tenggat</a></li>
+      <li><a href="#s7">Kesalahan Umum</a></li>
+      <li><a href="#s8">FAQ</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 8 &middot; UTS</span>
+      <h1>UTS: Proyek Analisis Data Eksploratif Mandiri</h1>
+      <p class="sub">Lembar tugas resmi Ujian Tengah Semester. Mahasiswa mempraktikkan tahap Obtain-Scrub-Explore dari siklus OSEMN secara mandiri pada satu dataset publik pilihan sendiri, menghasilkan notebook analisis dan insight non-teknis.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan UTS</a></li>
+        <li><a href="#s2">02. Ketentuan Dataset</a></li>
+        <li><a href="#s3">03. Deliverable Wajib</a></li>
+        <li><a href="#s4">04. Struktur Notebook</a></li>
+        <li><a href="#s5">05. Rubrik Penilaian</a></li>
+        <li><a href="#s6">06. Format Pengumpulan &amp; Tenggat</a></li>
+        <li><a href="#s7">07. Kesalahan Umum</a></li>
+        <li><a href="#s8">08. FAQ</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan UTS</h2>
+    <p>UTS ini adalah muara dari Pertemuan 1-7: mahasiswa diminta mempraktikkan tiga tahap pertama siklus <strong>OSEMN</strong> — <strong>O</strong>btain (mengumpulkan data dari sumber publik), <strong>S</strong>crub (membersihkan data yang hampir pasti berantakan di dunia nyata), dan <strong>E</strong>xplore (menemukan pola lewat statistik deskriptif &amp; visualisasi) — secara mandiri, dari awal sampai akhir, tanpa dituntun langkah demi langkah seperti pertemuan reguler.</p>
+    <p>Berbeda dari latihan di kelas yang memakai dataset yang sudah disiapkan dan rapi, UTS ini menguji kemampuan menghadapi data mentah yang asli: ada nilai kosong, format tanggal yang tidak konsisten, duplikasi, atau outlier yang harus ditemukan dan diputuskan sendiri cara menanganinya.</p>
+    <div class="note"><span class="lbl">Yang TIDAK diuji di UTS ini</span><p>Machine learning (regresi, klasifikasi, dsb) belum masuk cakupan UTS — itu baru dimulai Pertemuan 9. Fokus penilaian murni pada kualitas data cleaning, kedalaman eksplorasi, dan ketajaman insight.</p></div>
+
+    <h2 id="s2"><span class="badge">02</span>Ketentuan Dataset</h2>
+    <ul>
+      <li>Mahasiswa memilih <strong>satu dataset publik</strong> secara mandiri — boleh dari Kaggle, data.go.id, Badan Pusat Statistik (BPS), portal data pemerintah daerah, atau sumber terbuka lain yang sah dan sumbernya bisa disebutkan dengan jelas (nama penyedia + tautan/metode akses).</li>
+      <li>Minimal <strong>500 baris</strong> dan <strong>5 kolom</strong> sebelum dibersihkan.</li>
+      <li><strong>Dilarang</strong> memakai dataset "mainan" yang terlalu sering dipakai sebagai contoh di kelas atau tutorial daring, antara lain: <code>iris</code>, <code>titanic</code>, <code>tips</code> (seaborn), dan dataset bawaan scikit-learn (<code>load_*</code>).</li>
+      <li>Dataset boleh berbahasa Inggris maupun Indonesia, dan boleh dari topik apa pun (ekonomi, kesehatan, pendidikan, olahraga, media sosial, lingkungan, dll) selama memenuhi dua poin di atas.</li>
+    </ul>
+    <div class="warn"><span class="lbl">Dataset ditolak saat pengecekan?</span><p>Jika dosen menemukan dataset yang dipakai termasuk daftar terlarang atau terlalu identik dengan contoh tutorial yang banyak beredar (notebook hasil cleaning-nya tinggal disalin dari internet), mahasiswa akan diminta mengganti dataset dan mengumpulkan ulang dengan pengurangan nilai keterlambatan.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Deliverable Wajib</h2>
+    <p>Tiga berkas berikut wajib dikumpulkan sebagai satu paket (disarankan dalam satu folder/repository):</p>
+    <ol>
+      <li><strong>Notebook <code>.ipynb</code></strong> — berisi proses lengkap: memuat data mentah, data cleaning (menangani nilai kosong, duplikasi, tipe data salah, dll), dan EDA dengan <strong>minimal 5 visualisasi bermakna</strong> (bukan sekadar grafik default tanpa interpretasi).</li>
+      <li><strong>Laporan insight</strong> — boleh ditulis sebagai markdown cell di notebook yang sama, berisi <strong>5 insight utama</strong> dari hasil eksplorasi, ditulis dalam <strong>bahasa non-teknis</strong> yang bisa dipahami pembaca awam (bukan "distribusi kolom X right-skewed", tapi misalnya "sebagian besar transaksi bernilai kecil, hanya segelintir transaksi besar yang mendorong rata-rata naik").</li>
+      <li><strong>README singkat</strong> — menjelaskan sumber data (nama &amp; tautan/metode akses), dan cara menjalankan notebook dari awal (environment, dependency, urutan sel jika perlu).</li>
+    </ol>
+
+    <h2 id="s4"><span class="badge">04</span>Struktur Notebook yang Disarankan</h2>
+    <p>Notebook tidak wajib mengikuti urutan persis ini, tapi struktur berikut membantu penilai menelusuri alur kerja dengan cepat:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">uts-eksplorasi.ipynb</span></div><pre><code># 1. Pendahuluan — nama dataset, sumber, tujuan analisis
+# 2. Obtain — memuat data mentah, cek ukuran & tipe kolom
+# 3. Scrub — cek missing value, duplikasi, tipe data, outlier
+# 4. Explore — statistik deskriptif + minimal 5 visualisasi
+# 5. Insight — 5 poin insight dalam bahasa non-teknis
+# 6. Keterbatasan — hal yang belum/tidak bisa dijawab dari data ini</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda notebook siap dikumpulkan</span><p>Notebook bisa dijalankan ulang dari sel pertama sampai terakhir (<code>Kernel &rarr; Restart &amp; Run All</code>) tanpa error, dan setiap visualisasi punya judul serta minimal satu kalimat interpretasi di bawahnya.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Rubrik Penilaian</h2>
+    <table>
+      <tr><th>Komponen</th><th>Bobot</th><th>Yang dinilai</th></tr>
+      <tr><td>Kelengkapan data cleaning</td><td>25%</td><td>Penanganan missing value, duplikasi, tipe data, dan outlier secara tepat &amp; beralasan</td></tr>
+      <tr><td>Kedalaman EDA &amp; visualisasi</td><td>25%</td><td>Minimal 5 visualisasi bermakna, memilih jenis grafik yang sesuai jenis data</td></tr>
+      <tr><td>Kualitas insight/narasi</td><td>20%</td><td>5 insight ditulis jelas, non-teknis, dan relevan dengan data</td></tr>
+      <tr><td>Kerapian kode &amp; dokumentasi</td><td>15%</td><td>Kode terstruktur, ada komentar/markdown penjelas, README lengkap</td></tr>
+      <tr><td>Orisinalitas pemilihan dataset</td><td>15%</td><td>Dataset relevan, bukan dataset terlarang, dan dijelaskan sumbernya dengan jujur</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>100%</strong></td><td></td></tr>
+    </table>
+
+    <h2 id="s6"><span class="badge">06</span>Format Pengumpulan &amp; Tenggat</h2>
+    <ul>
+      <li><strong>Tenggat pengumpulan:</strong> [Tanggal pengumpulan]</li>
+      <li><strong>Tautan pengumpulan tugas:</strong> [Link pengumpulan tugas]</li>
+      <li><strong>Format berkas:</strong> satu folder/arsip (.zip) atau tautan repository berisi notebook <code>.ipynb</code>, README, dan (jika ada) salinan data mentah/tautan sumbernya.</li>
+      <li><strong>Nama berkas/folder:</strong> [Format penamaan sesuai ketentuan dosen, misal NIM_Nama_UTS]</li>
+    </ul>
+    <div class="warn"><span class="lbl">Terlambat mengumpulkan?</span><p>Ikuti kebijakan keterlambatan yang berlaku di kelas (lihat kontrak perkuliahan). Jika ada kendala teknis saat mengumpulkan menjelang tenggat, segera hubungi dosen melalui kanal komunikasi kelas sebelum waktu tenggat berakhir.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Kesalahan Umum yang Perlu Dihindari</h2>
+    <ul>
+      <li>Memakai dataset yang sudah bersih dari awal, sehingga tahap Scrub tidak benar-benar terlihat/teruji.</li>
+      <li>Visualisasi dibuat tapi tidak diberi interpretasi — grafik tanpa narasi tidak dianggap sebagai insight.</li>
+      <li>Insight ditulis masih dengan istilah statistik mentah, bukan bahasa yang bisa dipahami pembaca non-teknis.</li>
+      <li>Lupa menyertakan sumber data di README, sehingga orisinalitas sulit diverifikasi.</li>
+    </ul>
+
+    <h2 id="s8"><span class="badge">08</span>FAQ</h2>
+    <h3>Apakah UTS ini boleh dikerjakan berkelompok?</h3>
+    <p>Tidak. UTS dikerjakan <strong>secara individu</strong>. Setiap mahasiswa memilih dataset dan menyusun analisisnya sendiri; kemiripan tinggi antar-notebook yang dikumpulkan dapat diperiksa sebagai indikasi kerja sama yang tidak diizinkan.</p>
+    <h3>Apakah boleh memakai dataset berbahasa Inggris?</h3>
+    <p>Boleh. Bahasa dataset (Indonesia/Inggris) bebas, yang penting kolom dan isinya bisa dipahami dan dijelaskan dengan benar dalam laporan insight.</p>
+    <h3>Apakah dataset UTS boleh dipakai lagi untuk UAS di Pertemuan 16?</h3>
+    <p>Boleh, bahkan disarankan jika dataset tersebut cukup kaya untuk dikembangkan menjadi proyek end-to-end dengan model machine learning. Lihat ketentuan UAS di Pertemuan 16 untuk detailnya.</p>
+    <h3>Bagaimana jika dataset yang dipilih ternyata jauh lebih kecil dari 500 baris setelah dibersihkan (misalnya karena banyak duplikasi)?</h3>
+    <p>Pastikan ukuran dataset mentah (sebelum dibersihkan) sudah memenuhi syarat minimal 500 baris. Berkurang setelah proses cleaning adalah hal wajar dan justru perlu dijelaskan di notebook sebagai bagian dari proses, bukan disembunyikan.</p>
+
+    <footer>Setelah UTS, materi berlanjut ke inti machine learning di Pertemuan 9 (Regresi Linear) hingga Pertemuan 14 (Time Series), sebelum ditutup dengan deploy model di Pertemuan 15 dan proyek akhir UAS di Pertemuan 16. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

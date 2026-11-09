@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Exploratory Data Analysis (EDA) &amp; Visualisasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Apa itu EDA &amp; Kenapa Penting</a></li>
+      <li><a href="#s3">Dataset yang Dipakai</a></li>
+      <li><a href="#s4">Dasar Matplotlib</a></li>
+      <li><a href="#s5">Subplot dengan Matplotlib</a></li>
+      <li><a href="#s6">Kenapa Beralih ke Seaborn</a></li>
+      <li><a href="#s7">Distribusi: sns.histplot</a></li>
+      <li><a href="#s8">Boxplot: Sebaran &amp; Outlier</a></li>
+      <li><a href="#s9">Scatter Plot: Hubungan Dua Variabel</a></li>
+      <li><a href="#s10">Heatmap Korelasi</a></li>
+      <li><a href="#s11">Pairplot</a></li>
+      <li><a href="#s12">Analisis Kategori dengan Barplot</a></li>
+      <li><a href="#s13">Styling &amp; Tema Seaborn</a></li>
+      <li><a href="#s14">Menyusun Narasi Insight</a></li>
+      <li><a href="#s15">Kesalahan Umum Visualisasi</a></li>
+      <li><a href="#s16">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 6 &middot; Analisis</span>
+      <h1>Exploratory Data Analysis (EDA) &amp; Visualisasi</h1>
+      <p class="sub">Sebelum masuk ke modeling, seorang data scientist harus "berbicara" dengan datanya lewat visualisasi. Pertemuan ini membangun kemampuan membaca pola, sebaran, dan hubungan antar variabel menggunakan <code>matplotlib</code> dan <code>seaborn</code>, lalu menuliskannya sebagai insight yang bisa dipahami siapa pun.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Apa itu EDA</a></li>
+        <li><a href="#s3">03. Dataset yang Dipakai</a></li>
+        <li><a href="#s4">04. Dasar Matplotlib</a></li>
+        <li><a href="#s5">05. Subplot Matplotlib</a></li>
+        <li><a href="#s6">06. Kenapa Seaborn</a></li>
+        <li><a href="#s7">07. Distribusi: histplot</a></li>
+        <li><a href="#s8">08. Boxplot &amp; Outlier</a></li>
+        <li><a href="#s9">09. Scatter Plot</a></li>
+        <li><a href="#s10">10. Heatmap Korelasi</a></li>
+        <li><a href="#s11">11. Pairplot</a></li>
+        <li><a href="#s12">12. Barplot Kategori</a></li>
+        <li><a href="#s13">13. Styling Seaborn</a></li>
+        <li><a href="#s14">14. Narasi Insight</a></li>
+        <li><a href="#s15">15. Kesalahan Umum</a></li>
+        <li><a href="#s16">16. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Setelah pertemuan ini, mahasiswa dapat membuat visualisasi distribusi, sebaran, dan hubungan antar variabel menggunakan <code>matplotlib</code> dan <code>seaborn</code>, serta menuliskan insight dari grafik tersebut dalam bahasa yang mudah dipahami pengambil keputusan non-teknis.</p>
+    <ul>
+      <li>Sudah menguasai dasar <code>pandas</code> (indexing, filtering, <code>groupby</code>) dari pertemuan sebelumnya.</li>
+      <li>Environment Python dengan <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>seaborn</code> sudah terpasang.</li>
+      <li>Jalankan <code>pip install matplotlib seaborn</code> bila belum ada.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Apa itu EDA &amp; Kenapa Penting</h2>
+    <p><strong>Exploratory Data Analysis (EDA)</strong> adalah proses menyelidiki data secara visual dan statistik sebelum membangun model, dengan tujuan menemukan pola, anomali, dan hubungan antar variabel yang tidak terlihat hanya dari tabel angka.</p>
+    <div class="note"><span class="lbl">Kenapa tidak langsung modeling?</span><p>Model secanggih apa pun akan gagal jika data mengandung outlier ekstrem, nilai hilang, atau hubungan non-linear yang tidak terdeteksi. EDA adalah "peta jalan" yang menentukan pendekatan modeling apa yang masuk akal di Pertemuan 9 ke atas.</p></div>
+    <p>Secara umum EDA menjawab tiga pertanyaan: <strong>bagaimana sebaran tiap variabel?</strong>, <strong>apakah ada outlier atau anomali?</strong>, dan <strong>bagaimana hubungan antar variabel?</strong> — tiga pertanyaan inilah yang akan dijawab lewat berbagai jenis grafik di pertemuan ini.</p>
+
+    <h2 id="s3"><span class="badge">03</span>Dataset yang Dipakai</h2>
+    <p>Sepanjang pertemuan ini kita memakai dataset transaksi harian toko retail UMKM, <code>penjualan_toko.csv</code>, berisi 180 baris transaksi selama satu kuartal.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">data/raw/penjualan_toko.csv</span></div><pre><code>tanggal,cabang,kategori,produk,jumlah,harga_satuan,diskon_persen,rating_pelanggan
+2026-01-03,Tanjung Karang,Minuman,Kopi Susu,14,15000,0,4.5
+2026-01-03,Tanjung Karang,Makanan,Roti Bakar,9,12000,5,4.2
+2026-01-04,Kemiling,Minuman,Es Teh,22,8000,0,3.8
+2026-01-04,Kemiling,Makanan,Nasi Goreng,11,18000,10,4.7
+2026-01-05,Tanjung Karang,Snack,Keripik Singkong,30,9000,0,4.0
+...</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/06-eda.ipynb</span></div><pre><code>import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("../data/raw/penjualan_toko.csv")
+df["total"] = df["jumlah"] * df["harga_satuan"] * (1 - df["diskon_persen"] / 100)
+df.head()</code></pre></div>
+    <p>Kolom <code>total</code> ditambahkan sebagai turunan (pendapatan bersih per transaksi) — pola umum dalam EDA: menyiapkan kolom hasil olahan sebelum masuk ke visualisasi.</p>
+
+    <h2 id="s4"><span class="badge">04</span>Dasar Matplotlib</h2>
+    <p><code>matplotlib</code> adalah fondasi hampir semua library visualisasi Python, termasuk <code>seaborn</code>. Tiga fungsi paling dasar: <code>plt.plot</code> (garis), <code>plt.bar</code> (batang), dan <code>plt.hist</code> (histogram).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">matplotlib dasar</span></div><pre><code>harian = df.groupby("tanggal")["total"].sum()
+
+plt.figure(figsize=(8, 4))
+plt.plot(harian.index, harian.values, marker="o")
+plt.title("Total Pendapatan Harian")
+plt.xlabel("Tanggal")
+plt.ylabel("Total (Rp)")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">bar &amp; hist</span></div><pre><code>per_kategori = df.groupby("kategori")["total"].sum()
+plt.bar(per_kategori.index, per_kategori.values, color="#3659D9")
+plt.title("Total Pendapatan per Kategori")
+plt.show()
+
+plt.hist(df["rating_pelanggan"], bins=10, color="#2F6FD9", edgecolor="white")
+plt.title("Distribusi Rating Pelanggan")
+plt.show()</code></pre></div>
+
+    <h2 id="s5"><span class="badge">05</span>Subplot dengan Matplotlib</h2>
+    <p><code>plt.subplots</code> memungkinkan beberapa grafik ditampilkan berdampingan — berguna untuk membandingkan beberapa variabel sekaligus tanpa membuat sel notebook terpisah untuk tiap grafik.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">subplot 1x2</span></div><pre><code>fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+axes[0].bar(per_kategori.index, per_kategori.values, color="#3659D9")
+axes[0].set_title("Pendapatan per Kategori")
+
+axes[1].hist(df["rating_pelanggan"], bins=10, color="#1F7A4D")
+axes[1].set_title("Distribusi Rating")
+
+plt.tight_layout()
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Kapan cukup matplotlib saja?</span><p>Untuk grafik sederhana dan kontrol detail (posisi anotasi, layout custom), matplotlib murni sudah cukup. Tapi untuk eksplorasi cepat dengan statistik bawaan (distribusi, regresi, korelasi), <code>seaborn</code> jauh lebih efisien — itulah fokus sisa pertemuan ini.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Kenapa Beralih ke Seaborn</h2>
+    <p><code>seaborn</code> dibangun di atas <code>matplotlib</code> tapi dirancang khusus untuk data tabular (<code>DataFrame</code> pandas). Keunggulannya: sintaks lebih singkat, statistik (rata-rata, confidence interval, garis regresi) otomatis tergambar, dan tema visual yang lebih rapi secara default.</p>
+    <table>
+      <tr><th>Aspek</th><th>matplotlib</th><th>seaborn</th></tr>
+      <tr><td>Input data</td><td>array/list manual</td><td>langsung DataFrame + nama kolom</td></tr>
+      <tr><td>Statistik otomatis</td><td>harus dihitung manual</td><td>built-in (mean, CI, regresi)</td></tr>
+      <tr><td>Tema default</td><td>polos</td><td>lebih estetis, siap presentasi</td></tr>
+      <tr><td>Grafik multi-variabel</td><td>butuh banyak baris kode</td><td><code>hue</code>, <code>pairplot</code> dalam 1 baris</td></tr>
+    </table>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">import standar</span></div><pre><code>import seaborn as sns
+sns.set_theme(style="whitegrid")</code></pre></div>
+
+    <h2 id="s7"><span class="badge">07</span>Distribusi: sns.histplot</h2>
+    <p><code>sns.histplot</code> menampilkan distribusi sebuah variabel numerik, lengkap dengan opsi kurva kepadatan (<code>kde</code>) untuk melihat bentuk sebarannya secara halus.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">histplot</span></div><pre><code>plt.figure(figsize=(7, 4))
+sns.histplot(df["total"], bins=20, kde=True, color="#3659D9")
+plt.title("Distribusi Total Transaksi")
+plt.xlabel("Total (Rp)")
+plt.show()</code></pre></div>
+    <p>Jika kurva condong ke kanan (ekor panjang di nilai besar), berarti sebagian besar transaksi bernilai kecil namun ada beberapa transaksi besar yang menarik rata-rata ke atas — pola umum pada data transaksi retail.</p>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Grafik histogram muncul dengan batang biru dan garis kurva kde halus di atasnya, tanpa error <code>ValueError</code> terkait tipe data (pastikan kolom <code>total</code> bertipe numerik, bukan <code>object</code>).</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Boxplot: Sebaran &amp; Outlier</h2>
+    <p><code>sns.boxplot</code> menampilkan median, kuartil (Q1-Q3), dan titik-titik outlier dalam satu grafik ringkas — sangat berguna untuk membandingkan sebaran antar kategori sekaligus.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">boxplot per kategori</span></div><pre><code>plt.figure(figsize=(8, 4))
+sns.boxplot(data=df, x="kategori", y="total", palette="Blues")
+plt.title("Sebaran Total Transaksi per Kategori")
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Cara membaca boxplot</span><p>Garis tengah kotak = median. Tepi atas/bawah kotak = kuartil 1 dan 3 (IQR). Titik-titik di luar "kumis" (whisker) adalah outlier — transaksi dengan nilai jauh di luar kebiasaan kategori tersebut, perlu diselidiki apakah valid atau kesalahan input.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Scatter Plot: Hubungan Dua Variabel</h2>
+    <p><code>sns.scatterplot</code> menampilkan hubungan antara dua variabel numerik — misalnya, apakah diskon yang lebih besar berkorelasi dengan jumlah barang terjual lebih banyak.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">scatterplot dengan hue</span></div><pre><code>plt.figure(figsize=(7, 5))
+sns.scatterplot(data=df, x="diskon_persen", y="jumlah", hue="kategori", s=70)
+plt.title("Diskon vs Jumlah Terjual")
+plt.xlabel("Diskon (%)")
+plt.ylabel("Jumlah Terjual")
+plt.show()</code></pre></div>
+    <p>Parameter <code>hue</code> mewarnai titik berdasarkan kategori, sehingga pola per kategori bisa dibandingkan dalam satu grafik tanpa harus membuat grafik terpisah.</p>
+
+    <h2 id="s10"><span class="badge">10</span>Heatmap Korelasi</h2>
+    <p>Korelasi mengukur kekuatan hubungan linear antar dua variabel numerik, dengan nilai antara -1 (berlawanan sempurna) hingga 1 (searah sempurna). <code>df.corr()</code> menghitungnya untuk semua pasangan kolom numerik sekaligus.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">heatmap korelasi</span></div><pre><code>kolom_numerik = df[["jumlah", "harga_satuan", "diskon_persen", "rating_pelanggan", "total"]]
+corr = kolom_numerik.corr()
+
+plt.figure(figsize=(7, 5))
+sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f", vmin=-1, vmax=1)
+plt.title("Matriks Korelasi Variabel Numerik")
+plt.show()</code></pre></div>
+    <div class="warn"><span class="lbl">Hati-hati menafsirkan angka korelasi</span><p>Korelasi tinggi antara <code>jumlah</code> dan <code>total</code> sebagian besar hanya karena <code>total</code> dihitung dari <code>jumlah</code> — ini korelasi "ikut terbawa rumus", bukan temuan baru. Selalu cek bagaimana kolom dibentuk sebelum menyimpulkan hubungan.</p></div>
+
+    <h2 id="s11"><span class="badge">11</span>Pairplot</h2>
+    <p><code>sns.pairplot</code> membuat grid scatter plot untuk semua pasangan variabel numerik sekaligus, plus histogram di diagonal — cara cepat untuk "memindai" seluruh dataset dalam satu perintah.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">pairplot</span></div><pre><code>sns.pairplot(
+    df[["jumlah", "harga_satuan", "diskon_persen", "rating_pelanggan", "kategori"]],
+    hue="kategori",
+    diag_kind="kde"
+)
+plt.show()</code></pre></div>
+    <div class="note"><span class="lbl">Kapan pairplot kurang cocok?</span><p>Jika jumlah kolom numerik banyak (lebih dari 6-7), grid yang dihasilkan menjadi terlalu padat dan lambat dirender. Untuk dataset besar, pilih dulu subset kolom yang paling relevan dengan pertanyaan analisis.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Analisis Kategori dengan Barplot</h2>
+    <p><code>sns.barplot</code> menampilkan rata-rata (atau agregat lain) suatu variabel numerik per kategori, lengkap dengan garis error bar yang menunjukkan ketidakpastian estimasi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">barplot rata-rata</span></div><pre><code>plt.figure(figsize=(8, 4))
+sns.barplot(data=df, x="cabang", y="total", estimator="mean", errorbar="sd")
+plt.title("Rata-rata Total Transaksi per Cabang")
+plt.show()</code></pre></div>
+    <p>Berbeda dengan <code>plt.bar</code> yang butuh agregasi manual lewat <code>groupby</code> terlebih dahulu, <code>sns.barplot</code> menghitung rata-rata secara otomatis langsung dari data mentah per baris transaksi.</p>
+
+    <h2 id="s13"><span class="badge">13</span>Styling &amp; Tema Seaborn</h2>
+    <p>Konsistensi visual penting saat laporan berisi banyak grafik. <code>sns.set_theme</code> dan parameter <code>palette</code> mengatur tampilan global untuk seluruh notebook.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">tema global</span></div><pre><code>sns.set_theme(style="whitegrid", palette="deep", font_scale=1.05)
+
+# style populer lain: "darkgrid", "ticks", "white"
+# palette populer lain: "Blues", "Set2", "pastel"</code></pre></div>
+    <div class="note"><span class="lbl">Praktik baik</span><p>Panggil <code>sns.set_theme()</code> sekali di awal notebook (biasanya tepat setelah import), bukan di setiap sel grafik — supaya seluruh grafik dalam laporan konsisten.</p></div>
+
+    <h2 id="s14"><span class="badge">14</span>Menyusun Narasi Insight</h2>
+    <p>Grafik tanpa narasi hanya menjadi dekorasi. Tahap terakhir EDA adalah menerjemahkan pola visual menjadi kalimat yang bisa dipahami pemilik UMKM yang tidak paham istilah statistik.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">contoh insight dari grafik di atas</span></div><pre><code># 1. Kategori Minuman menyumbang pendapatan tertinggi dan paling stabil
+#    dibanding Makanan & Snack (dari barplot & boxplot kategori).
+# 2. Cabang Tanjung Karang rata-rata bertransaksi lebih tinggi dari
+#    Kemiling, tapi dengan sebaran (variasi) yang lebih besar.
+# 3. Diskon besar (>15%) tidak selalu diikuti kenaikan jumlah barang
+#    terjual yang signifikan — artinya diskon besar belum tentu efektif.
+# 4. Rating pelanggan condong tinggi (4.0-4.7), dengan sedikit transaksi
+#    bernilai rendah — bisa jadi indikasi kepuasan pelanggan cukup baik.
+# 5. Ditemukan beberapa outlier transaksi bernilai sangat besar di
+#    kategori Makanan — perlu dicek apakah ini pesanan katering/borongan.</code></pre></div>
+    <div class="verify"><span class="lbl">Ciri insight yang baik</span><p>Berupa kalimat pernyataan (bukan ulangan angka), menjawab "jadi kenapa ini penting", dan jika memungkinkan menyertakan rekomendasi tindakan — bukan sekadar "grafik menunjukkan X naik".</p></div>
+
+    <h2 id="s15"><span class="badge">15</span>Kesalahan Umum Visualisasi</h2>
+    <ul>
+      <li><strong>Sumbu Y tidak mulai dari 0 pada bar chart</strong> — membesar-besarkan perbedaan kecil secara visual.</li>
+      <li><strong>Terlalu banyak warna/kategori dalam satu grafik</strong> — sulit dibaca, pertimbangkan memecah jadi beberapa subplot.</li>
+      <li><strong>Memakai pie chart untuk banyak kategori</strong> — barplot horizontal biasanya lebih mudah dibaca untuk lebih dari 5 kategori.</li>
+      <li><strong>Lupa label sumbu &amp; satuan</strong> — pembaca tidak tahu angka 150000 itu rupiah, unit, atau yang lain.</li>
+    </ul>
+    <div class="warn"><span class="lbl">Error umum: <code>TypeError: '&lt;' not supported between instances of 'str' and 'int'</code></span><p>Muncul saat kolom yang seharusnya numerik masih bertipe teks (misalnya karena ada nilai kosong tertulis "-"). Cek dengan <code>df.dtypes</code> dan bersihkan dengan <code>pd.to_numeric(df[kolom], errors="coerce")</code> sebelum divisualisasikan.</p></div>
+
+    <h2 id="s16"><span class="badge">16</span>Latihan</h2>
+    <ol>
+      <li>Buat histogram distribusi <code>harga_satuan</code> dan tentukan apakah distribusinya condong kiri, kanan, atau simetris.</li>
+      <li>Buat boxplot <code>total</code> per <code>cabang</code>, identifikasi cabang mana yang memiliki outlier paling banyak.</li>
+      <li>Buat scatter plot <code>rating_pelanggan</code> vs <code>total</code> dengan <code>hue="kategori"</code>, apakah ada hubungan yang terlihat?</li>
+      <li>Buat heatmap korelasi hanya untuk kolom <code>harga_satuan</code>, <code>diskon_persen</code>, dan <code>rating_pelanggan</code> (tanpa <code>jumlah</code> dan <code>total</code>), lalu bandingkan interpretasinya dengan heatmap lengkap di bagian 10.</li>
+      <li>Tulis minimal 3 insight baru (selain contoh di bagian 14) dari grafik-grafik yang kamu buat sendiri.</li>
+    </ol>
+
+    <footer>Dengan kemampuan membaca pola lewat visualisasi, Pertemuan 7 akan memperkuat EDA dengan fondasi statistik: ukuran pemusatan, distribusi, dan uji hipotesis untuk memastikan insight yang ditemukan benar-benar signifikan, bukan kebetulan. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

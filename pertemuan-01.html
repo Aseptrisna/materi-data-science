@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pengantar Data Science & Setup Environment Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Apa itu Data Science</a></li>
+      <li><a href="#s3">Peran: Data Scientist vs Analyst vs Engineer</a></li>
+      <li><a href="#s4">Siklus Kerja Data Science (OSEMN)</a></li>
+      <li><a href="#s5">Instalasi Python &amp; Anaconda</a></li>
+      <li><a href="#s6">Virtual Environment</a></li>
+      <li><a href="#s7">Jupyter Notebook / JupyterLab</a></li>
+      <li><a href="#s8">VS Code untuk Data Science</a></li>
+      <li><a href="#s9">pip &amp; requirements.txt</a></li>
+      <li><a href="#s10">Library Inti Sepanjang Semester</a></li>
+      <li><a href="#s11">Struktur Proyek Data Science</a></li>
+      <li><a href="#s12">Hello Data: Dataset Pertama dengan pandas</a></li>
+      <li><a href="#s13">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 1 &middot; Fondasi</span>
+      <h1>Pengantar Data Science &amp; Setup Environment Python</h1>
+      <p class="sub">Pertemuan pertama membangun fondasi: apa itu data science, bagaimana seorang data scientist bekerja sehari-hari, dan menyiapkan seluruh perangkat (Python, Jupyter, VS Code) yang akan dipakai sepanjang 16 pertemuan ke depan.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Apa itu Data Science</a></li>
+        <li><a href="#s3">03. Peran: Scientist vs Analyst vs Engineer</a></li>
+        <li><a href="#s4">04. Siklus Kerja (OSEMN)</a></li>
+        <li><a href="#s5">05. Instalasi Python &amp; Anaconda</a></li>
+        <li><a href="#s6">06. Virtual Environment</a></li>
+        <li><a href="#s7">07. Jupyter Notebook/Lab</a></li>
+        <li><a href="#s8">08. VS Code untuk Data Science</a></li>
+        <li><a href="#s9">09. pip &amp; requirements.txt</a></li>
+        <li><a href="#s10">10. Library Inti Semester Ini</a></li>
+        <li><a href="#s11">11. Struktur Proyek</a></li>
+        <li><a href="#s12">12. Hello Data: pandas Pertama</a></li>
+        <li><a href="#s13">13. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat menjelaskan posisi data science dalam organisasi, memiliki environment Python yang siap pakai, dan berhasil membaca dataset pertama menggunakan <code>pandas</code> di Jupyter Notebook.</p>
+    <ul>
+      <li>Laptop dengan <strong>minimal 4GB RAM</strong> (8GB lebih nyaman untuk library seperti scikit-learn/pandas dengan dataset menengah).</li>
+      <li>Koneksi internet untuk mengunduh Python, Anaconda, dan package.</li>
+      <li>Tidak wajib sudah bisa Python — dasar Python untuk data science akan direview di Pertemuan 2. Yang penting sudah pernah menulis kode apa pun (hasil mata kuliah pemrograman sebelumnya).</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Apa itu Data Science</h2>
+    <p><strong>Data Science</strong> adalah disiplin yang menggabungkan statistik, pemrograman, dan pengetahuan domain untuk mengubah data mentah menjadi insight, prediksi, atau keputusan yang bisa ditindaklanjuti. Bukan sekadar "main data" — tujuan akhirnya selalu <strong>menjawab pertanyaan bisnis atau ilmiah</strong> yang konkret.</p>
+    <p>Tiga pilar yang membentuk data science sering digambarkan sebagai irisan tiga lingkaran:</p>
+    <ul>
+      <li><strong>Matematika &amp; Statistika</strong> — memahami distribusi data, ketidakpastian, dan validitas kesimpulan.</li>
+      <li><strong>Pemrograman &amp; Rekayasa</strong> — mengolah data dalam jumlah besar secara efisien dan reproducible.</li>
+      <li><strong>Pengetahuan Domain</strong> — tanpa ini, model secanggih apa pun bisa salah arah karena tidak paham konteks bisnis/datanya.</li>
+    </ul>
+    <div class="note"><span class="lbl">Contoh kasus nyata</span><p>Sebuah minimarket ingin tahu kenapa penjualan turun di cabang tertentu. Data scientist tidak langsung membuat model machine learning rumit — ia mulai dari EDA (Pertemuan 6) untuk melihat pola, baru menentukan apakah masalahnya butuh model prediktif atau cukup insight deskriptif.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Peran: Data Scientist vs Analyst vs Engineer</h2>
+    <p>Empat peran ini sering tertukar di lapangan, padahal fokus kerjanya berbeda:</p>
+    <table>
+      <tr><th>Peran</th><th>Fokus utama</th><th>Output khas</th></tr>
+      <tr><td>Data Analyst</td><td>Analisis deskriptif &amp; reporting</td><td>Dashboard, laporan tren, rekomendasi bisnis</td></tr>
+      <tr><td>Data Scientist</td><td>Analisis + model prediktif/statistik</td><td>Model ML, eksperimen, insight berbasis data</td></tr>
+      <tr><td>Data Engineer</td><td>Pipeline &amp; infrastruktur data</td><td>ETL, data warehouse, data siap pakai</td></tr>
+      <tr><td>ML Engineer</td><td>Produksi-kan model ML</td><td>Model yang di-deploy, API prediksi, monitoring</td></tr>
+    </table>
+    <p>Sepanjang semester ini, kita akan menyentuh keempat peran tersebut secara ringan: mengumpulkan &amp; membersihkan data (mirip Data Engineer di Pertemuan 4-5), menganalisis &amp; membangun model (inti Data Scientist di Pertemuan 6-14), sampai men-deploy model sederhana (mirip ML Engineer di Pertemuan 15).</p>
+
+    <h2 id="s4"><span class="badge">04</span>Siklus Kerja Data Science (OSEMN)</h2>
+    <p>Kerangka kerja <strong>OSEMN</strong> (dibaca "awesome") adalah cara sederhana memahami tahapan proyek data science, dan akan menjadi peta jalan 16 pertemuan ini:</p>
+    <table>
+      <tr><th>Tahap</th><th>Arti</th><th>Dibahas di</th></tr>
+      <tr><td><strong>O</strong>btain</td><td>Mengumpulkan data (file, database, API, scraping)</td><td>Pertemuan 3-4</td></tr>
+      <tr><td><strong>S</strong>crub</td><td>Membersihkan &amp; mempersiapkan data</td><td>Pertemuan 5</td></tr>
+      <tr><td><strong>E</strong>xplore</td><td>Eksplorasi &amp; visualisasi untuk menemukan pola</td><td>Pertemuan 6-7</td></tr>
+      <tr><td><strong>M</strong>odel</td><td>Membangun model statistik/machine learning</td><td>Pertemuan 9-14</td></tr>
+      <tr><td><strong>i</strong>N</td><td style="text-indent:-9999px">-</td><td style="text-indent:-9999px">-</td></tr>
+      <tr><td><strong>N</strong>terpret</td><td>Menafsirkan hasil &amp; mengomunikasikannya</td><td>Semua pertemuan, puncaknya di UTS &amp; UAS</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Kenapa dipelajari di awal?</span><p>Supaya setiap pertemuan berikutnya terasa seperti potongan puzzle yang jelas posisinya, bukan topik-topik lepas yang tidak nyambung satu sama lain.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Instalasi Python &amp; Anaconda</h2>
+    <p>Kita memakai <strong>Anaconda</strong> (atau versi ringannya, <strong>Miniconda</strong>) karena sudah menyertakan Python, pengelola environment (<code>conda</code>), dan sebagian besar library data science umum dalam satu paket instalasi.</p>
+    <ol>
+      <li>Unduh installer sesuai OS dari situs resmi Anaconda/Miniconda.</li>
+      <li>Jalankan installer, centang opsi "Add to PATH" jika ditawarkan (memudahkan akses dari terminal).</li>
+      <li>Verifikasi instalasi:</li>
+    </ol>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">verifikasi instalasi</span></div><pre><code>python --version
+# Python 3.11.x atau lebih baru
+
+conda --version
+# conda 23.x.x</code></pre></div>
+    <div class="warn"><span class="lbl">Tidak mau pakai Anaconda?</span><p>Boleh pakai Python resmi dari python.org + <code>venv</code> bawaan. Semua contoh kode di materi ini tetap jalan, hanya perintah pembuatan environment di bagian 06 yang sedikit berbeda (sudah disertakan kedua versinya).</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Virtual Environment</h2>
+    <p>Virtual environment mengisolasi dependency tiap proyek, supaya versi library di satu mata kuliah tidak bentrok dengan proyek lain di laptop yang sama.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">dengan conda</span></div><pre><code>conda create -n datasci python=3.11 -y
+conda activate datasci</code></pre></div>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">alternatif: venv bawaan Python</span></div><pre><code>python -m venv .venv
+
+# aktifkan (macOS/Linux)
+source .venv/bin/activate
+
+# aktifkan (Windows PowerShell)
+.venv\Scripts\Activate.ps1</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda environment aktif</span><p>Prompt terminal menampilkan nama environment di depan, misalnya <code>(datasci) user@laptop ~ %</code>. Semua perintah <code>pip install</code> setelah ini hanya berlaku di dalam environment tersebut.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Jupyter Notebook / JupyterLab</h2>
+    <p><strong>Jupyter</strong> adalah lingkungan kerja interaktif berbasis sel (cell) — kode, hasil eksekusi, visualisasi, dan catatan markdown bisa digabung dalam satu dokumen. Ini adalah alat yang paling sering dipakai data scientist untuk eksplorasi.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>pip install jupyterlab
+jupyter lab</code></pre></div>
+    <p>Perintah di atas membuka JupyterLab di browser. Buat notebook baru (<code>File &rarr; New &rarr; Notebook</code>), lalu coba sel pertama:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">sel notebook</span></div><pre><code>print("Halo, Data Science!")
+2 + 2</code></pre></div>
+    <p>Jalankan sel dengan <code>Shift+Enter</code>. Hasil dari baris terakhir (<code>2 + 2</code>) akan tampil otomatis di bawah sel tanpa perlu <code>print()</code> — kebiasaan khas notebook yang berbeda dari menjalankan skrip <code>.py</code> biasa.</p>
+
+    <h2 id="s8"><span class="badge">08</span>VS Code untuk Data Science</h2>
+    <p>VS Code bisa menjalankan notebook (<code>.ipynb</code>) langsung tanpa membuka browser, dengan ekstensi berikut:</p>
+    <ul>
+      <li><strong>Python</strong> (Microsoft) — linting, IntelliSense, menjalankan file <code>.py</code>.</li>
+      <li><strong>Jupyter</strong> (Microsoft) — membuka &amp; menjalankan file <code>.ipynb</code> di dalam VS Code.</li>
+    </ul>
+    <p>Setelah ekstensi terpasang, buka folder proyek, buat file baru dengan ekstensi <code>.ipynb</code>, lalu pilih kernel Python sesuai environment yang sudah dibuat di bagian 06 (klik "Select Kernel" di pojok kanan atas).</p>
+
+    <h2 id="s9"><span class="badge">09</span>pip &amp; requirements.txt</h2>
+    <p><code>pip</code> adalah package manager Python untuk menginstal library. Praktik standar: catat semua dependency proyek di <code>requirements.txt</code> supaya proyek bisa direproduksi oleh orang lain (atau laptop lain).</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>pip install pandas numpy matplotlib seaborn scikit-learn jupyterlab
+
+# simpan daftar dependency terpasang
+pip freeze > requirements.txt
+
+# di laptop lain, install ulang persis sama
+pip install -r requirements.txt</code></pre></div>
+
+    <h2 id="s10"><span class="badge">10</span>Library Inti Sepanjang Semester</h2>
+    <table>
+      <tr><th>Library</th><th>Fungsi</th><th>Mulai dipakai</th></tr>
+      <tr><td><code>numpy</code></td><td>Komputasi numerik &amp; array multidimensi</td><td>Pertemuan 2</td></tr>
+      <tr><td><code>pandas</code></td><td>Manipulasi data tabular (DataFrame)</td><td>Pertemuan 3</td></tr>
+      <tr><td><code>matplotlib</code> / <code>seaborn</code></td><td>Visualisasi data</td><td>Pertemuan 6</td></tr>
+      <tr><td><code>scipy</code> / <code>statsmodels</code></td><td>Statistik &amp; uji hipotesis</td><td>Pertemuan 7</td></tr>
+      <tr><td><code>scikit-learn</code></td><td>Machine learning (regresi, klasifikasi, clustering)</td><td>Pertemuan 9</td></tr>
+      <tr><td><code>joblib</code></td><td>Menyimpan &amp; memuat model terlatih</td><td>Pertemuan 13</td></tr>
+      <tr><td><code>FastAPI</code> / <code>Streamlit</code></td><td>Serving model sebagai API/dashboard</td><td>Pertemuan 15</td></tr>
+    </table>
+
+    <h2 id="s11"><span class="badge">11</span>Struktur Proyek Data Science</h2>
+    <p>Sejak pertemuan ini, biasakan menata folder proyek secara konsisten supaya notebook tidak bercampur dengan data mentah dan kode yang bisa dipakai ulang:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">struktur folder</span></div><pre><code>proyek-data-science/
+├── data/
+│   ├── raw/              data mentah, JANGAN diubah langsung
+│   └── processed/        hasil data yang sudah dibersihkan
+├── notebooks/
+│   └── 01-eksplorasi.ipynb
+├── src/                   fungsi python yang dipakai ulang antar notebook
+├── requirements.txt
+└── README.md</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa data/raw tidak boleh diubah?</span><p>Supaya proses pembersihan data selalu bisa diulang dari titik awal yang sama (reproducibility) — prinsip penting yang akan terus ditekankan sampai proyek akhir di Pertemuan 16.</p></div>
+
+    <h2 id="s12"><span class="badge">12</span>Hello Data: Dataset Pertama dengan pandas</h2>
+    <p>Saatnya membuktikan environment sudah siap. Buat berkas <code>data/raw/penjualan.csv</code> sederhana:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">data/raw/penjualan.csv</span></div><pre><code>tanggal,produk,kategori,jumlah,harga
+2026-01-05,Kopi Susu,Minuman,12,15000
+2026-01-05,Roti Bakar,Makanan,8,12000
+2026-01-06,Kopi Susu,Minuman,20,15000
+2026-01-06,Es Teh,Minuman,15,8000
+2026-01-07,Roti Bakar,Makanan,10,12000</code></pre></div>
+    <p>Lalu buka notebook baru di <code>notebooks/01-eksplorasi.ipynb</code>, dan jalankan:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">notebooks/01-eksplorasi.ipynb</span></div><pre><code>import pandas as pd
+
+df = pd.read_csv("../data/raw/penjualan.csv")
+df.head()</code></pre></div>
+    <p>Jika berhasil, akan muncul tabel 5 baris pertama. Coba juga perintah eksplorasi dasar:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><pre><code>df.info()          # tipe data tiap kolom & jumlah baris
+df.describe()      # ringkasan statistik kolom numerik
+df["kategori"].unique()   # nilai unik di kolom kategori</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p><code>df.info()</code> menampilkan 5 kolom dengan tipe data yang masuk akal (<code>object</code> untuk teks, <code>int64</code>/<code>float64</code> untuk angka), dan tidak ada error <code>FileNotFoundError</code> atau <code>ModuleNotFoundError</code>.</p></div>
+    <div class="warn"><span class="lbl">Error <code>ModuleNotFoundError: No module named 'pandas'</code></span><p>Kernel Jupyter yang dipilih bukan environment yang sudah di-<code>pip install pandas</code>. Cek kembali bagian 06-08: pastikan environment aktif saat menjalankan <code>pip install</code>, dan kernel notebook mengarah ke environment yang sama.</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>Latihan</h2>
+    <ol>
+      <li>Pastikan <code>python --version</code>, <code>jupyter lab</code>, dan import <code>pandas</code>, <code>numpy</code>, <code>matplotlib</code>, <code>scikit-learn</code> semuanya berjalan tanpa error di environment <code>datasci</code>.</li>
+      <li>Tambahkan 5 baris data baru ke <code>penjualan.csv</code> (boleh produk/kategori buatan sendiri), lalu jalankan ulang <code>df.head()</code>, <code>df.info()</code>, dan <code>df.describe()</code> untuk melihat perubahannya.</li>
+      <li>Buat <code>README.md</code> singkat di folder proyekmu berisi: nama, environment yang dipakai (conda/venv), dan cara menjalankan notebook.</li>
+      <li>Simpan struktur folder sesuai bagian 11 — ini akan dipakai terus sampai proyek akhir UAS di Pertemuan 16.</li>
+    </ol>
+
+    <footer>Dengan environment yang sudah siap dan satu dataset pertama berhasil dibaca, Pertemuan 2 akan memperdalam dasar Python (tipe data, struktur kontrol) dan memperkenalkan NumPy sebagai fondasi komputasi numerik sebelum masuk ke pandas secara mendalam. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

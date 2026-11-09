@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deploy Model: FastAPI &amp; Streamlit</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan &amp; Prasyarat</a></li>
+      <li><a href="#s2">Kenapa Deploy Itu Penting</a></li>
+      <li><a href="#s3">Menyimpan Pipeline dengan joblib</a></li>
+      <li><a href="#s4">Mengenal FastAPI</a></li>
+      <li><a href="#s5">Instalasi FastAPI &amp; uvicorn</a></li>
+      <li><a href="#s6">Membangun Endpoint POST /predict</a></li>
+      <li><a href="#s7">Menjalankan Server dengan uvicorn</a></li>
+      <li><a href="#s8">Menguji API: curl &amp; /docs</a></li>
+      <li><a href="#s9">Validasi Input dengan Pydantic</a></li>
+      <li><a href="#s10">Mengenal Streamlit</a></li>
+      <li><a href="#s11">Membangun Dashboard Streamlit</a></li>
+      <li><a href="#s12">Menjalankan Dashboard</a></li>
+      <li><a href="#s13">FastAPI vs Streamlit: Kapan Pakai Apa</a></li>
+      <li><a href="#s14">Checklist Sebelum Deploy</a></li>
+      <li><a href="#s15">Opsi Hosting Gratis</a></li>
+      <li><a href="#s16">Latihan</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 15 &middot; Produksi</span>
+      <h1>Deploy Model: FastAPI &amp; Streamlit</h1>
+      <p class="sub">Model yang hanya bisa dijalankan di notebook pribadi belum benar-benar berguna. Pertemuan ini membawa pipeline terlatih dari Pertemuan 13 keluar dari notebook: menjadi REST API dengan FastAPI, atau dashboard interaktif dengan Streamlit.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan &amp; Prasyarat</a></li>
+        <li><a href="#s2">02. Kenapa Deploy Itu Penting</a></li>
+        <li><a href="#s3">03. Menyimpan Pipeline dengan joblib</a></li>
+        <li><a href="#s4">04. Mengenal FastAPI</a></li>
+        <li><a href="#s5">05. Instalasi FastAPI &amp; uvicorn</a></li>
+        <li><a href="#s6">06. Endpoint POST /predict</a></li>
+        <li><a href="#s7">07. Menjalankan Server uvicorn</a></li>
+        <li><a href="#s8">08. Menguji API: curl &amp; /docs</a></li>
+        <li><a href="#s9">09. Validasi Input Pydantic</a></li>
+        <li><a href="#s10">10. Mengenal Streamlit</a></li>
+        <li><a href="#s11">11. Membangun Dashboard Streamlit</a></li>
+        <li><a href="#s12">12. Menjalankan Dashboard</a></li>
+        <li><a href="#s13">13. FastAPI vs Streamlit</a></li>
+        <li><a href="#s14">14. Checklist Sebelum Deploy</a></li>
+        <li><a href="#s15">15. Opsi Hosting Gratis</a></li>
+        <li><a href="#s16">16. Latihan</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan &amp; Prasyarat</h2>
+    <p>Di akhir pertemuan ini, mahasiswa dapat menyimpan pipeline scikit-learn terlatih dan menyajikannya sebagai layanan yang bisa diakses pihak lain — baik melalui REST API (FastAPI) maupun dashboard interaktif (Streamlit).</p>
+    <ul>
+      <li>Sudah memiliki pipeline terlatih dari Pertemuan 13 (scikit-learn <code>Pipeline</code> dengan preprocessing + model), atau model sederhana dari Pertemuan 9-10.</li>
+      <li>Environment Python aktif dengan <code>scikit-learn</code> dan <code>joblib</code> sudah terpasang.</li>
+      <li>Familiar dengan konsep dasar HTTP (request, response, JSON) — tidak wajib expert, cukup paham konsepnya.</li>
+    </ul>
+
+    <h2 id="s2"><span class="badge">02</span>Kenapa Model Bagus di Notebook Belum Tentu Berguna</h2>
+    <p>Sebuah model dengan akurasi tinggi di <code>model.ipynb</code> hanya berguna bagi orang yang membuka notebook itu. Rekan kerja, aplikasi mobile, atau sistem lain tidak bisa "membuka notebook" untuk mendapatkan prediksi — mereka butuh cara mengakses model tanpa harus menjalankan Python dan memahami kode di baliknya.</p>
+    <p><strong>Deploy</strong> adalah proses membungkus model menjadi layanan yang bisa dipanggil dari luar: lewat alamat web (API) yang mengembalikan JSON, atau lewat antarmuka visual (dashboard) yang bisa diklik orang awam. Tanpa tahap ini, siklus OSEMN terasa berhenti di "Model" — padahal nilai sebenarnya baru terasa saat model dipakai orang lain untuk mengambil keputusan.</p>
+    <div class="note"><span class="lbl">Analogi sederhana</span><p>Notebook adalah dapur tempat resep (model) diuji coba. Deploy adalah membuka restoran — orang lain memesan makanan (meminta prediksi) tanpa perlu tahu cara memasaknya.</p></div>
+
+    <h2 id="s3"><span class="badge">03</span>Menyimpan Pipeline Terlatih dengan joblib</h2>
+    <p>Di Pertemuan 13, pipeline (preprocessing + model) sudah dilatih dan disimpan. Berikut ringkasan singkat cara menyimpan &amp; memuatnya kembali, sebagai titik awal pertemuan ini:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">latih_dan_simpan.py</span></div><pre><code>import joblib
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+pipeline = Pipeline([
+    ("scaler", StandardScaler()),
+    ("model", LogisticRegression())
+])
+pipeline.fit(X_train, y_train)
+
+joblib.dump(pipeline, "model_pipeline.joblib")
+print("Pipeline tersimpan di model_pipeline.joblib")</code></pre></div>
+    <p>File <code>model_pipeline.joblib</code> inilah yang akan dimuat ulang oleh API atau dashboard — tanpa perlu melatih ulang model setiap kali aplikasi dijalankan.</p>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>File <code>model_pipeline.joblib</code> muncul di folder proyek, dan <code>joblib.load("model_pipeline.joblib")</code> mengembalikan objek pipeline yang bisa langsung dipanggil <code>.predict()</code>.</p></div>
+
+    <h2 id="s4"><span class="badge">04</span>Mengenal FastAPI</h2>
+    <p><strong>FastAPI</strong> adalah framework Python untuk membangun REST API secara cepat, dengan validasi data otomatis dan dokumentasi interaktif yang ter-generate sendiri. FastAPI cocok dipakai saat prediksi model perlu diakses oleh aplikasi lain (mobile app, web app, sistem lain) dalam format terstruktur (JSON).</p>
+    <p>Struktur dasar proyek deploy dengan FastAPI:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">struktur folder</span></div><pre><code>deploy-model/
+├── model_pipeline.joblib    hasil joblib.dump dari Pertemuan 13
+├── main.py                  kode FastAPI
+└── requirements.txt</code></pre></div>
+
+    <h2 id="s5"><span class="badge">05</span>Instalasi FastAPI &amp; uvicorn</h2>
+    <p><strong>uvicorn</strong> adalah server ASGI yang menjalankan aplikasi FastAPI. Keduanya perlu dipasang di environment yang sama dengan model:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>pip install fastapi uvicorn
+
+# simpan ke requirements.txt
+pip freeze > requirements.txt</code></pre></div>
+
+    <h2 id="s6"><span class="badge">06</span>Membangun Endpoint POST /predict</h2>
+    <p>Endpoint adalah "pintu masuk" API. Kita membuat satu endpoint <code>POST /predict</code> yang menerima data fitur dalam format JSON, lalu mengembalikan hasil prediksi:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">main.py</span></div><pre><code>from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import numpy as np
+
+app = FastAPI(title="API Prediksi Model")
+pipeline = joblib.load("model_pipeline.joblib")
+
+class InputData(BaseModel):
+    fitur_1: float
+    fitur_2: float
+    fitur_3: float
+
+@app.post("/predict")
+def predict(data: InputData):
+    X = np.array([[data.fitur_1, data.fitur_2, data.fitur_3]])
+    hasil = pipeline.predict(X)[0]
+    return {"prediksi": str(hasil)}</code></pre></div>
+    <p>Model dimuat <strong>satu kali saat aplikasi start</strong> (di luar fungsi <code>predict</code>), bukan setiap kali ada request masuk — ini membuat API jauh lebih cepat merespons.</p>
+
+    <h2 id="s7"><span class="badge">07</span>Menjalankan Server dengan uvicorn</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>uvicorn main:app --reload</code></pre></div>
+    <p><code>main:app</code> berarti "muat objek <code>app</code> dari file <code>main.py</code>". Flag <code>--reload</code> membuat server otomatis me-restart saat kode diubah — berguna selama pengembangan, biasanya dimatikan saat benar-benar production.</p>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Terminal menampilkan <code>Uvicorn running on http://127.0.0.1:8000</code> tanpa pesan error di bawahnya.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Menguji API: curl &amp; Dokumentasi Otomatis /docs</h2>
+    <p>FastAPI otomatis menghasilkan dokumentasi interaktif (Swagger UI) di <code>/docs</code> — buka <code>http://127.0.0.1:8000/docs</code> di browser untuk mencoba endpoint langsung dari antarmuka web tanpa menulis kode apa pun.</p>
+    <p>Atau uji lewat terminal dengan <code>curl</code>:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>curl -X POST "http://127.0.0.1:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{"fitur_1": 5.2, "fitur_2": 3.1, "fitur_3": 1.4}'
+
+# {"prediksi":"1"}</code></pre></div>
+    <div class="warn"><span class="lbl">Error <code>Connection refused</code></span><p>Server uvicorn belum berjalan, atau dijalankan di terminal/tab yang berbeda dari tempat <code>curl</code> dijalankan. Pastikan server masih aktif di terminal lain sebelum mengirim request.</p></div>
+
+    <h2 id="s9"><span class="badge">09</span>Validasi Input dengan Pydantic</h2>
+    <p>Class <code>InputData(BaseModel)</code> pada bagian 06 bukan sekadar anotasi tipe — FastAPI memakainya untuk <strong>memvalidasi otomatis</strong> data yang masuk. Jika klien mengirim <code>fitur_1</code> berupa teks yang tidak bisa diubah ke angka, FastAPI langsung menolak request dengan pesan error yang jelas, sebelum kode <code>predict()</code> sempat dijalankan.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">contoh respons error otomatis</span></div><pre><code>{
+  "detail": [
+    {"loc": ["body", "fitur_1"], "msg": "value is not a valid float", "type": "type_error.float"}
+  ]
+}</code></pre></div>
+    <div class="note"><span class="lbl">Kenapa ini penting</span><p>Validasi di lapisan API mencegah data kotor/salah format sampai ke model, yang bisa menyebabkan error sulit ditelusuri atau — lebih buruk — prediksi yang salah tanpa pemberitahuan.</p></div>
+
+    <h2 id="s10"><span class="badge">10</span>Mengenal Streamlit</h2>
+    <p><strong>Streamlit</strong> adalah framework Python untuk membangun dashboard/aplikasi web interaktif tanpa perlu menulis HTML, CSS, atau JavaScript. Cocok dipakai saat hasil prediksi perlu <strong>langsung dilihat dan dioperasikan manusia</strong> lewat form, tombol, dan tampilan visual — bukan dikonsumsi sistem lain.</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>pip install streamlit</code></pre></div>
+
+    <h2 id="s11"><span class="badge">11</span>Membangun Dashboard Interaktif dengan Streamlit</h2>
+    <p>Dashboard sederhana berikut memuat pipeline yang sama, menampilkan form input, dan tombol untuk memicu prediksi:</p>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">app.py</span></div><pre><code>import streamlit as st
+import joblib
+import numpy as np
+
+pipeline = joblib.load("model_pipeline.joblib")
+
+st.title("Dashboard Prediksi Model")
+st.write("Masukkan nilai fitur untuk melihat hasil prediksi.")
+
+fitur_1 = st.number_input("Fitur 1", value=0.0)
+fitur_2 = st.number_input("Fitur 2", value=0.0)
+fitur_3 = st.selectbox("Fitur 3 (kategori)", options=[0, 1, 2])
+
+if st.button("Prediksi"):
+    X = np.array([[fitur_1, fitur_2, fitur_3]])
+    hasil = pipeline.predict(X)[0]
+    st.success(f"Hasil prediksi: {hasil}")</code></pre></div>
+    <p><code>st.number_input</code> dan <code>st.selectbox</code> membuat form input, sedangkan <code>st.button</code> menunda eksekusi kode prediksi sampai pengguna benar-benar mengklik tombol — bukan setiap kali halaman dimuat ulang.</p>
+
+    <h2 id="s12"><span class="badge">12</span>Menjalankan Dashboard</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">terminal</span></div><pre><code>streamlit run app.py</code></pre></div>
+    <p>Perintah ini otomatis membuka browser ke <code>http://localhost:8501</code> dengan dashboard yang sudah bisa langsung dipakai.</p>
+    <div class="verify"><span class="lbl">Tanda berhasil</span><p>Form input, tombol "Prediksi", dan hasil <code>st.success(...)</code> muncul di browser tanpa pesan <code>ModuleNotFoundError</code> atau <code>FileNotFoundError</code> (pastikan <code>model_pipeline.joblib</code> ada di folder yang sama dengan <code>app.py</code>).</p></div>
+
+    <h2 id="s13"><span class="badge">13</span>FastAPI vs Streamlit: Kapan Pakai yang Mana</h2>
+    <table>
+      <tr><th>Kriteria</th><th>FastAPI</th><th>Streamlit</th></tr>
+      <tr><td>Konsumen utama</td><td>Aplikasi/sistem lain (mobile, web, service lain)</td><td>Manusia langsung lewat browser</td></tr>
+      <tr><td>Format output</td><td>JSON terstruktur</td><td>Tampilan visual (teks, grafik, tabel)</td></tr>
+      <tr><td>Butuh tampilan UI?</td><td>Tidak — hanya endpoint</td><td>Ya — form &amp; komponen visual bawaan</td></tr>
+      <tr><td>Cocok untuk</td><td>Integrasi ke aplikasi produksi</td><td>Demo, prototipe, dashboard internal</td></tr>
+    </table>
+    <p>Keduanya tidak saling eksklusif — proyek yang lebih matang sering memakai FastAPI sebagai "otak" (endpoint prediksi) dan Streamlit sebagai "wajah" yang memanggil endpoint tersebut.</p>
+
+    <h2 id="s14"><span class="badge">14</span>Checklist Sebelum Deploy</h2>
+    <ul>
+      <li><strong>Model sudah divalidasi</strong> — metrik evaluasi (Pertemuan 11) sudah diperiksa dan dianggap layak, bukan model pertama yang kebetulan jalan.</li>
+      <li><strong>Input tervalidasi</strong> — tipe data dan rentang nilai yang masuk akal sudah dicek (lewat Pydantic di FastAPI, atau pengecekan manual di Streamlit).</li>
+      <li><strong>Error handling untuk input tidak valid</strong> — aplikasi tidak crash total saat menerima input aneh, melainkan mengembalikan pesan error yang jelas.</li>
+      <li><strong>Dependency tercatat</strong> — <code>requirements.txt</code> lengkap dan versi library konsisten dengan yang dipakai saat melatih model.</li>
+    </ul>
+    <div class="warn"><span class="lbl">Jangan lupa</span><p>Model yang dilatih dengan versi scikit-learn tertentu kadang tidak kompatibel saat dimuat dengan versi yang berbeda. Catat versi <code>scikit-learn</code> yang dipakai saat <code>joblib.dump</code> ke dalam <code>requirements.txt</code>.</p></div>
+
+    <h2 id="s15"><span class="badge">15</span>Opsi Hosting Gratis untuk Tugas Kuliah</h2>
+    <table>
+      <tr><th>Platform</th><th>Cocok untuk</th><th>Catatan</th></tr>
+      <tr><td>Railway</td><td>FastAPI (REST API)</td><td>Deploy dari repository Git, cocok untuk API kecil skala tugas</td></tr>
+      <tr><td>Render</td><td>FastAPI (REST API)</td><td>Free tier tersedia, server bisa "tidur" saat tidak ada traffic</td></tr>
+      <tr><td>Streamlit Community Cloud</td><td>Dashboard Streamlit</td><td>Deploy langsung dari repository GitHub, gratis untuk proyek publik</td></tr>
+    </table>
+    <div class="note"><span class="lbl">Tidak wajib online</span><p>Untuk kebutuhan tugas kuliah, menjalankan API/dashboard secara lokal dan mendemokannya lewat screen recording atau presentasi langsung sudah cukup — deploy online adalah nilai tambah, bukan keharusan (lihat juga ketentuan UAS di Pertemuan 16).</p></div>
+
+    <h2 id="s16"><span class="badge">16</span>Latihan</h2>
+    <ol>
+      <li>Ambil salah satu model (regresi dari Pertemuan 9 atau klasifikasi dari Pertemuan 10) yang sudah dilatih, simpan pipeline-nya dengan <code>joblib.dump</code>.</li>
+      <li>Bangun endpoint <code>POST /predict</code> dengan FastAPI yang menerima fitur sesuai model tersebut, lalu uji lewat <code>/docs</code> dan <code>curl</code>.</li>
+      <li>Sebagai alternatif/pelengkap, bangun juga dashboard Streamlit sederhana untuk model yang sama, dengan minimal dua jenis input (<code>st.number_input</code> dan <code>st.selectbox</code>).</li>
+      <li>Tulis checklist dari bagian 14 dan centang satu per satu untuk proyekmu sendiri sebelum dianggap "siap demo".</li>
+    </ol>
+
+    <footer>Dengan model yang sudah bisa diakses lewat API atau dashboard, materi 16 pertemuan ini ditutup di Pertemuan 16 dengan proyek akhir UAS yang merangkai seluruh siklus OSEMN — dari data mentah sampai model yang ter-deploy. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>

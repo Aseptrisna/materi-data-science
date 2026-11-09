@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UAS: Proyek Akhir Data Science End-to-End</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F2FA; --panel:#FFFFFF; --text:#1A2340; --muted:#67708A; --line:#DDE3F0;
+    --accent:#3659D9; --accent-dim:#E3E9FB; --code-bg:#101A33; --code-text:#DCE3F7; --blue:#2F6FD9; --green:#1F7A4D; --green-dim:#DCEFDD;
+    box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-behavior:smooth; scroll-padding-top:24px;}
+  *{box-sizing:border-box;}
+  body{
+    background:radial-gradient(1100px 500px at 85% -10%, rgba(54,89,217,.10), transparent), var(--bg);
+    color:var(--text); margin:0; font-family:'Inter',system-ui,sans-serif; line-height:1.65; font-size:16.5px;
+  }
+  a{color:var(--accent);}
+  strong{font-weight:600; color:var(--text);}
+  .shell{display:flex; max-width:1180px; margin:0 auto;}
+  nav.side{position:sticky; top:0; align-self:flex-start; width:250px; flex:0 0 250px; padding:40px 20px 40px 28px; height:100vh; overflow-y:auto; border-right:1px solid var(--line);}
+  .brand{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em; color:var(--muted); margin-bottom:24px; line-height:1.6;}
+  nav.side ol{list-style:none; margin:0; padding:0; border-left:1px solid var(--line);}
+  nav.side a{display:block; padding:7px 0 7px 16px; font-size:13.5px; color:var(--muted); border-left:2px solid transparent; margin-left:-1px;}
+  nav.side a:hover{color:var(--text);}
+  nav.side a.active{color:var(--accent); border-left-color:var(--accent);}
+  main{flex:1; min-width:0; padding:56px 32px 120px; max-width:800px;}
+  .back{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text); margin-bottom:22px; padding:7px 14px 7px 10px; border:1px solid var(--line); border-radius:999px; background:var(--panel); transition:background .15s, border-color .15s; text-decoration:none;} .back:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .kicker{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--accent); background:var(--accent-dim); padding:4px 10px; border-radius:999px; font-weight:600; letter-spacing:.02em; margin-bottom:18px;}
+  h1{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(28px,4.5vw,40px); line-height:1.15; margin:0 0 14px; color:var(--text);}
+  .sub{color:var(--muted); font-size:16.5px; max-width:62ch; margin:0 0 20px;}
+  h2{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:23px; color:var(--text); margin:60px 0 16px; display:flex; align-items:center; gap:12px; scroll-margin-top:24px;}
+  h2 .badge{flex:0 0 auto; width:30px; height:30px; border-radius:8px; background:var(--accent-dim); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;}
+  h3{font-family:'Space Grotesk',sans-serif; font-size:17.5px; font-weight:600; color:var(--text); margin:26px 0 10px;}
+  h4{font-family:'Space Grotesk',sans-serif; font-size:15.5px; font-weight:600; color:var(--accent); margin:22px 0 8px;}
+  p{margin:0 0 15px; max-width:68ch;}
+  ul,ol{margin:0 0 18px; padding-left:20px;}
+  li{margin-bottom:8px; max-width:66ch;}
+  li::marker{color:var(--accent);}
+  code{font-family:'JetBrains Mono',monospace;}
+  :not(pre)>code{background:var(--accent-dim); color:var(--accent); padding:1px 6px; border-radius:4px; font-size:.88em;}
+  .codecard{background:var(--code-bg); border:1px solid var(--line); border-radius:10px; margin:0 0 20px; overflow:hidden;}
+  .codecard .bar{display:flex; align-items:center; gap:6px; padding:10px 14px; border-bottom:1px solid var(--line);}
+  .codecard .dot{width:9px; height:9px; border-radius:50%; background:#26345C;}
+  .codecard .tag{margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);}
+  .codecard pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.65; color:var(--code-text);}
+  .note{background:var(--panel); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .note .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--accent); font-size:13px; margin-bottom:4px;}
+  .note p{margin:0; font-size:15px;}
+  .verify{background:var(--green-dim); border-left:3px solid var(--green); border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .verify .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--green); font-size:13px; margin-bottom:4px;}
+  .verify p{margin:0; font-size:15px;}
+  .warn{background:#331A1A; border-left:3px solid #F26B6B; border-radius:0 10px 10px 0; padding:14px 18px; margin:0 0 20px;}
+  .warn .lbl{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; color:#F26B6B; font-size:13px; margin-bottom:4px;}
+  .warn p{margin:0; font-size:15px; color:#F2D9D9;}
+  .oscard{border:1px solid var(--line); border-radius:10px; padding:4px 18px 6px; margin:0 0 24px; background:var(--panel);}
+  table{width:100%; border-collapse:collapse; margin:0 0 20px; font-size:14.5px;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; text-transform:uppercase; letter-spacing:.03em;}
+  .toc{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 22px; margin:0 0 28px;}
+  .toc .lbl{font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--text); font-size:14px; margin-bottom:10px; display:block;}
+  .toc ol{columns:2; column-gap:24px; margin:0; padding-left:18px;}
+  .toc li{font-size:13.5px; margin-bottom:6px; break-inside:avoid;}
+  footer{margin-top:70px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  @media (max-width:880px){ nav.side{display:none;} main{padding:36px 20px 90px; max-width:100%;} table{display:block; overflow-x:auto;} .toc ol{columns:1;} }
+  ::selection{background:var(--accent); color:#fff;}
+
+  /* === site header & footer === */
+  .site-header-bar{border-bottom:1px solid var(--line); background:var(--panel);}
+  .site-header{display:flex; align-items:center; justify-content:space-between; max-width:1180px; margin:0 auto; padding:18px 32px; gap:16px;}
+  .site-brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);}
+  .site-brand-mark{width:34px; height:34px; border-radius:10px; background:var(--accent); color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:0 0 auto;}
+  .site-brand-text{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; line-height:1.3;}
+  .site-brand-text small{display:block; font-family:'Inter',sans-serif; font-weight:400; font-size:11px; color:var(--muted); margin-top:1px;}
+  .site-header-cta{display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--text); padding:9px 16px; border:1px solid var(--line); border-radius:999px; background:var(--bg); text-decoration:none; transition:background .15s, border-color .15s;}
+  .site-header-cta:hover{background:var(--accent-dim); border-color:var(--accent);}
+  .site-footer{background:var(--code-bg); color:var(--code-text); margin-top:56px; padding:44px 32px 26px;}
+  .site-footer-inner{max-width:1180px; margin:0 auto; display:flex; flex-wrap:wrap; gap:40px; justify-content:space-between;}
+  .site-footer-brand{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; color:#fff; margin-bottom:8px;}
+  .site-footer-desc{font-size:13.5px; color:var(--code-text); opacity:.82; max-width:38ch; margin:0;}
+  .site-footer-col{display:flex; flex-direction:column; gap:9px;}
+  .site-footer-lbl{font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#8FA8E0; margin-bottom:2px;}
+  .site-footer-col a{color:var(--code-text); text-decoration:none; font-size:13.5px;}
+  .site-footer-col a:hover{color:#fff; text-decoration:underline;}
+  .site-footer-bottom{max-width:1180px; margin:32px auto 0; padding-top:20px; border-top:1px solid rgba(255,255,255,.12); font-size:12px; color:#8FA8E0;}
+  @media (max-width:880px){
+    .site-header{padding:14px 20px;}
+    .site-footer{padding:36px 20px 22px;}
+  }
+
+  /* === animasi & interaksi === */
+  .scrollbar{position:fixed; top:0; left:0; width:100%; height:3px; background:transparent; z-index:80;}
+  .scrollbar-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7FA8FF); transition:width .1s linear;}
+  .site-header-bar{transition:box-shadow .25s ease;}
+  .site-header-bar.scrolled{box-shadow:0 6px 18px -10px rgba(26,35,64,.25);}
+  nav.side a{transition:color .2s ease, border-left-color .2s ease, padding-left .2s ease;}
+  nav.side a:hover{padding-left:20px;}
+  .reveal{opacity:0; transform:translateY(20px); transition:opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1);}
+  .reveal.in-view{opacity:1; transform:translateY(0);}
+  .codecard, .try, .task, .note, .warn, .verify{transition:transform .25s ease, box-shadow .25s ease;}
+  .codecard:hover, .try:hover, .task:hover, .note:hover, .warn:hover, .verify:hover{transform:translateY(-2px); box-shadow:0 14px 28px -16px rgba(26,35,64,.28);}
+  .site-header-cta{transition:opacity .15s, transform .15s, box-shadow .15s;}
+  .site-header-cta:hover{transform:translateY(-1px); box-shadow:0 8px 18px -8px rgba(54,89,217,.45);}
+  .back:hover, .seriesnav a:hover{transform:translateY(-1px);}
+  .back, .seriesnav a{transition:background .15s, border-color .15s, transform .15s;}
+  h2 .badge{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  h2.in-view .badge{animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes badgePop{0%{transform:scale(0.4) rotate(-20deg);} 100%{transform:scale(1) rotate(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important; transform:none !important; transition:none !important;}
+    h2.in-view .badge{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scrollbar"><div class="scrollbar-fill" id="scrollFill"></div></div>
+<div class="site-header-bar">
+  <header class="site-header">
+    <a class="site-brand" href="index.html">
+      <span class="site-brand-mark">DS</span>
+      <span class="site-brand-text">Data Science &amp; Praktikum Data Science<small>Sistem Informasi &middot; FIK UBL</small></span>
+    </a>
+    <a class="site-header-cta" href="index.html">Semua Materi &rarr;</a>
+  </header>
+</div>
+<div class="shell">
+  <nav class="side">
+    <div class="brand">SISTEM INFORMASI<br>FAKULTAS ILMU KOMPUTER<br>UNIVERSITAS BANDAR LAMPUNG</div>
+    <ol>
+      <li><a href="#s1">Tujuan UAS</a></li>
+      <li><a href="#s2">Ketentuan Proyek</a></li>
+      <li><a href="#s3">Deliverable Wajib</a></li>
+      <li><a href="#s4">Struktur Repository</a></li>
+      <li><a href="#s5">Rubrik Penilaian</a></li>
+      <li><a href="#s6">Simulasi Pertanyaan Sidang</a></li>
+      <li><a href="#s7">Timeline Pengerjaan</a></li>
+      <li><a href="#s8">Format Pengumpulan &amp; Tenggat</a></li>
+      <li><a href="#s9">FAQ</a></li>
+    </ol>
+  </nav>
+  <main>
+    <a class="back" href="index.html">&larr; Kembali ke daftar pertemuan</a>
+    <header>
+      <span class="kicker">Pertemuan 16 &middot; UAS</span>
+      <h1>UAS: Proyek Akhir Data Science End-to-End</h1>
+      <p class="sub">Lembar tugas resmi Ujian Akhir Semester. Mahasiswa merangkai seluruh siklus OSEMN dari Pertemuan 1-15 menjadi satu proyek end-to-end: dari data mentah, cleaning, EDA, model machine learning, evaluasi, sampai deploy sederhana.</p>
+    </header>
+
+    <div class="toc">
+      <span class="lbl">Daftar isi cepat</span>
+      <ol>
+        <li><a href="#s1">01. Tujuan UAS</a></li>
+        <li><a href="#s2">02. Ketentuan Proyek</a></li>
+        <li><a href="#s3">03. Deliverable Wajib</a></li>
+        <li><a href="#s4">04. Struktur Repository</a></li>
+        <li><a href="#s5">05. Rubrik Penilaian</a></li>
+        <li><a href="#s6">06. Simulasi Pertanyaan Sidang</a></li>
+        <li><a href="#s7">07. Timeline Pengerjaan</a></li>
+        <li><a href="#s8">08. Format Pengumpulan &amp; Tenggat</a></li>
+        <li><a href="#s9">09. FAQ</a></li>
+      </ol>
+    </div>
+
+    <h2 id="s1"><span class="badge">01</span>Tujuan UAS</h2>
+    <p>UAS ini adalah proyek akhir yang merangkum seluruh perjalanan satu semester: menerapkan siklus <strong>OSEMN</strong> secara penuh — <strong>O</strong>btain, <strong>S</strong>crub, <strong>E</strong>xplore, <strong>M</strong>odel, hingga <strong>iN</strong>terpret — pada satu proyek data science end-to-end pilihan sendiri. Berbeda dari UTS yang berhenti di tahap eksplorasi, UAS menuntut mahasiswa membangun model machine learning, mengevaluasinya dengan tepat, dan men-deploy-nya menjadi layanan yang bisa didemokan, mengikuti teknik Pertemuan 9-15.</p>
+    <div class="note"><span class="lbl">Kaitan dengan UTS</span><p>Dataset UTS (Pertemuan 8) boleh dipakai ulang dan dikembangkan di UAS jika memang relevan untuk dibuatkan model prediktif, atau mahasiswa boleh memulai dari dataset/topik baru sama sekali.</p></div>
+
+    <h2 id="s2"><span class="badge">02</span>Ketentuan Proyek</h2>
+    <p>Topik proyek <strong>bebas</strong> — bisnis, kesehatan, pendidikan, lingkungan, olahraga, atau bidang lain — selama seluruh tahap berikut benar-benar ada dan bisa ditunjukkan:</p>
+    <ul>
+      <li><strong>Data collection</strong> — boleh memakai sumber data yang sama dengan UTS, atau sumber publik baru (dengan ketentuan jenis dataset yang sama seperti Pertemuan 8: bukan dataset "mainan" kelas).</li>
+      <li><strong>Cleaning</strong> — penanganan missing value, duplikasi, tipe data, dan outlier yang relevan dengan data yang dipilih.</li>
+      <li><strong>EDA dengan insight</strong> — eksplorasi yang menghasilkan temuan, bukan sekadar menjalankan fungsi statistik tanpa interpretasi.</li>
+      <li><strong>Minimal satu model machine learning</strong> — regresi, klasifikasi, atau clustering, dipilih sesuai karakteristik masalah/data, lengkap dengan evaluasi metrik yang sesuai (Pertemuan 11).</li>
+      <li><strong>Deploy sederhana</strong> — sebagai FastAPI atau Streamlit (Pertemuan 15). <strong>Boleh berjalan lokal saja</strong>, tidak wajib online, tapi harus bisa didemokan secara langsung atau lewat rekaman layar.</li>
+    </ul>
+
+    <h2 id="s3"><span class="badge">03</span>Deliverable Wajib</h2>
+    <ol>
+      <li><strong>Seluruh kode dalam repository Git</strong> yang terstruktur rapi, mengikuti konvensi folder dari Pertemuan 1 (<code>data/raw</code>, <code>data/processed</code>, <code>notebooks/</code>, <code>src/</code>, dst).</li>
+      <li><strong>Laporan akhir</strong> (boleh format PDF atau markdown) dengan struktur ringkas: <em>Latar Belakang, Data &amp; Sumber, Metodologi, Hasil &amp; Evaluasi, Kesimpulan &amp; Keterbatasan</em>.</li>
+      <li><strong>Video demo singkat (3-5 menit)</strong> yang menunjukkan alur kerja dan hasil akhir aplikasi (API/dashboard), atau sesi presentasi langsung di kelas sebagai gantinya.</li>
+      <li><strong>Link deploy</strong> (jika aplikasi dihosting online) <strong>atau screen recording</strong> (jika hanya dijalankan lokal) sebagai bukti aplikasi benar-benar berfungsi.</li>
+    </ol>
+
+    <h2 id="s4"><span class="badge">04</span>Struktur Repository yang Disarankan</h2>
+    <div class="codecard"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="tag">uas-proyek-akhir/</span></div><pre><code>uas-proyek-akhir/
+├── data/
+│   ├── raw/
+│   └── processed/
+├── notebooks/
+│   ├── 01-eda.ipynb
+│   └── 02-modeling.ipynb
+├── src/
+│   └── preprocessing.py
+├── deploy/
+│   ├── main.py            atau app.py (FastAPI/Streamlit)
+│   └── model_pipeline.joblib
+├── laporan_akhir.md        atau .pdf
+├── requirements.txt
+└── README.md</code></pre></div>
+    <div class="verify"><span class="lbl">Tanda repository siap dikumpulkan</span><p>Orang lain yang mengkloning repository bisa menjalankan <code>pip install -r requirements.txt</code>, lalu menjalankan notebook dan aplikasi deploy tanpa perlu bertanya langkah tambahan ke pembuatnya.</p></div>
+
+    <h2 id="s5"><span class="badge">05</span>Rubrik Penilaian</h2>
+    <table>
+      <tr><th>Komponen</th><th>Bobot</th><th>Yang dinilai</th></tr>
+      <tr><td>Kualitas &amp; kelengkapan data pipeline</td><td>20%</td><td>Obtain-Scrub-Explore dilakukan dengan benar &amp; terdokumentasi</td></tr>
+      <tr><td>Ketepatan pemilihan &amp; evaluasi model</td><td>20%</td><td>Jenis model sesuai masalah, metrik evaluasi relevan &amp; diinterpretasikan</td></tr>
+      <tr><td>Kualitas deploy/demo</td><td>15%</td><td>API/dashboard berfungsi, bisa menerima input &amp; menampilkan hasil</td></tr>
+      <tr><td>Kualitas laporan &amp; presentasi</td><td>30%</td><td>Struktur laporan lengkap, video/presentasi jelas &amp; mudah diikuti</td></tr>
+      <tr><td>Kedalaman insight &amp; rekomendasi</td><td>15%</td><td>Kesimpulan menjawab latar belakang, keterbatasan diakui secara jujur</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>100%</strong></td><td></td></tr>
+    </table>
+    <div class="note"><span class="lbl">Kenapa laporan &amp; presentasi berbobot paling besar</span><p>Berbeda dari UTS, UAS adalah proyek akhir yang harus bisa dikomunikasikan ke orang lain secara utuh — kemampuan menjelaskan proses dan hasil sama pentingnya dengan kemampuan teknis membangun modelnya.</p></div>
+
+    <h2 id="s6"><span class="badge">06</span>Simulasi Pertanyaan Sidang/Presentasi</h2>
+    <p>Berikut gambaran pertanyaan yang mungkin diajukan saat presentasi — sifatnya membangun, untuk menguji pemahaman, bukan untuk menjatuhkan:</p>
+    <ol>
+      <li>"Kenapa memilih jenis model ini (misalnya logistic regression, bukan decision tree) untuk kasusmu?"</li>
+      <li>"Apa keterbatasan utama dari model atau datamu saat ini, dan bagaimana dampaknya ke hasil?"</li>
+      <li>"Bagaimana jika data yang kamu pakai berubah menjadi data real-time — bagian mana dari pipeline-mu yang perlu disesuaikan?"</li>
+      <li>"Metrik evaluasi yang kamu pakai kenapa dianggap paling cocok dibanding metrik lain untuk kasus ini?"</li>
+      <li>"Jika punya waktu satu minggu lagi, bagian mana dari proyek ini yang akan kamu perbaiki lebih dulu?"</li>
+    </ol>
+    <div class="note"><span class="lbl">Tips menjawab</span><p>Jawaban terbaik bukan yang menyatakan proyek sudah sempurna, melainkan yang menunjukkan kesadaran akan trade-off yang diambil dan arah perbaikan yang masuk akal ke depannya.</p></div>
+
+    <h2 id="s7"><span class="badge">07</span>Timeline Pengerjaan</h2>
+    <ul>
+      <li><strong>[Minggu 1]</strong> — Penentuan topik &amp; dataset, pengumpulan data awal (Obtain).</li>
+      <li><strong>[Minggu 2]</strong> — Data cleaning &amp; EDA lengkap dengan insight awal (Scrub &amp; Explore).</li>
+      <li><strong>[Minggu 3]</strong> — Pembangunan &amp; evaluasi model machine learning (Model).</li>
+      <li><strong>[Minggu 4]</strong> — Deploy sederhana (FastAPI/Streamlit), penyusunan laporan akhir, dan rekaman video demo (iNterpret &amp; penyajian).</li>
+    </ul>
+    <div class="warn"><span class="lbl">Jangan menunda tahap deploy ke menit terakhir</span><p>Deploy sering menampakkan masalah yang tidak terlihat di notebook (versi library, format input, dsb). Sisakan waktu minimal beberapa hari sebelum tenggat khusus untuk tahap ini.</p></div>
+
+    <h2 id="s8"><span class="badge">08</span>Format Pengumpulan &amp; Tenggat</h2>
+    <ul>
+      <li><strong>Tenggat pengumpulan:</strong> [Tanggal pengumpulan]</li>
+      <li><strong>Tautan pengumpulan tugas:</strong> [Link pengumpulan tugas]</li>
+      <li><strong>Jadwal presentasi/sidang (jika ada):</strong> [Tanggal &amp; sesi presentasi]</li>
+      <li><strong>Format berkas:</strong> tautan repository Git (publik atau dengan akses diberikan ke dosen) + laporan akhir + tautan video demo.</li>
+    </ul>
+
+    <h2 id="s9"><span class="badge">09</span>FAQ</h2>
+    <h3>Apakah UAS boleh dikerjakan berkelompok?</h3>
+    <p>Tidak. Sama seperti UTS, UAS dikerjakan <strong>secara individu</strong> agar setiap mahasiswa benar-benar menguasai seluruh tahap pipeline-nya sendiri.</p>
+    <h3>Apakah boleh melanjutkan dataset yang sama dari UTS?</h3>
+    <p>Boleh, dan justru sering lebih efisien karena tahap Obtain-Scrub-Explore sudah pernah dilakukan — tinggal dilanjutkan ke tahap Model dan Deploy.</p>
+    <h3>Bagaimana jika model yang dibangun hasilnya kurang akurat?</h3>
+    <p>Tidak masalah, selama proses dan evaluasinya dilakukan dengan benar serta keterbatasannya dijelaskan jujur di laporan. Penilaian menekankan pada ketepatan metodologi dan kejujuran analisis, bukan semata angka akurasi tertinggi.</p>
+    <h3>Apakah deploy wajib online (bisa diakses lewat internet)?</h3>
+    <p>Tidak wajib. Aplikasi yang hanya berjalan lokal di laptop sendiri sudah memenuhi syarat, selama bisa didemokan langsung saat presentasi atau lewat screen recording yang jelas.</p>
+
+    <footer>Selamat menyelesaikan proyek akhir — rangkaian 16 pertemuan ini dirancang agar pada titik ini, seluruh tahap OSEMN sudah pernah dipraktikkan langsung, dari dataset mentah hingga layanan yang bisa diakses orang lain. &mdash; Materi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung</footer>
+  </main>
+</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-col">
+      <div class="site-footer-brand">Data Science &amp; Praktikum Data Science</div>
+      <p class="site-footer-desc">Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Bandar Lampung.</p>
+      <p class="site-footer-desc" style="margin-top:6px;">Mentor &amp; Pengampu: <strong style="color:#fff;">A. Trisna Setiawan, S.Kom., M.T.</strong></p>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Navigasi</span>
+      <a href="index.html">Semua Pertemuan</a>
+      <a href="pertemuan-08.html">UTS: Proyek EDA Mandiri</a>
+      <a href="pertemuan-16.html">UAS: Proyek Akhir</a>
+    </div>
+    <div class="site-footer-col">
+      <span class="site-footer-lbl">Rangkaian Praktikum</span>
+      <a href="pertemuan-09.html">09. Machine Learning Dasar</a>
+      <a href="pertemuan-13.html">13. Feature Engineering &amp; Pipeline</a>
+      <a href="pertemuan-15.html">15. Deploy Model</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">&copy; 2026 Sistem Informasi &middot; Fakultas Ilmu Komputer &middot; Universitas Bandar Lampung</div>
+</footer>
+<script>
+  const links = document.querySelectorAll('nav.side a');
+  const sections = [...links].map(l => document.querySelector(l.getAttribute('href')));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const idx = sections.indexOf(e.target);
+      if (idx >= 0) links[idx].classList.add('active');
+    }});
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => s && io.observe(s));
+
+  (function(){
+    const fill = document.getElementById('scrollFill');
+    const bar = document.querySelector('.site-header-bar');
+    function onScroll(){
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.classList.toggle('scrolled', h.scrollTop > 4);
+    }
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  (function(){
+    const targets = document.querySelectorAll('h2, .codecard, .note, .warn, .verify, .try, .task, table');
+    targets.forEach(el => el.classList.add('reveal'));
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io2.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+    targets.forEach(el => io2.observe(el));
+  })();
+</script>
+</body>
+</html>
